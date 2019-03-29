@@ -18,5 +18,13 @@ class Line:
         X = 1
         B =1
 
-        
+
+class Bus:
+
+    def __init__(self, bus_data):
+        ID = 1
+        bustype = 1
+        V = 1
+        theta = 1
+
 
