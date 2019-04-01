@@ -14,6 +14,8 @@ class Measurement:
         self.value = float(meas_data[2])
         self.std_dev = float(meas_data[3])
 
+        self.type = meas_data[4]
+
 
 class Line:
 
@@ -74,11 +76,11 @@ class Bus:
 
 
 # Flag for WLS or LS state estimator
-wls = False
+wls = not False
 
 # Importing data
-data_measures = open("Measurements.txt", "r").read().split("\n")
-datasets = open("System.txt", "r").read().split("9999\n")
+data_measures = open("Measurements2.txt", "r").read().split("\n")
+datasets = open("System2.txt", "r").read().split("9999\n")
 
 # Create measurement objects
 measures = dict()
@@ -132,17 +134,20 @@ aux = 0
 for key in measures.keys():
 
     # Fill Jacobiam matrix
-    if key.split("-")[1] is not "*":
-        H[aux, measures[key].origin - 1] = 1/np.imag(1/-Ybus[measures[key].origin - 1, measures[key].destiny - 1])
-        H[aux, measures[key].destiny - 1] = -1/np.imag(1/-Ybus[measures[key].origin - 1, measures[key].destiny - 1])
+    if measures[key].type == 'u':
+        if key.split("-")[1] is not "*":
+            H[aux, measures[key].origin - 1] = 1/np.imag(1/-Ybus[measures[key].origin - 1, measures[key].destiny - 1])
+            H[aux, measures[key].destiny - 1] = -1/np.imag(1/-Ybus[measures[key].origin - 1, measures[key].destiny - 1])
+        else:
+            for lkey in lines.keys():
+                if measures[key].origin == lines[lkey].origin:
+                    H[aux, measures[key].origin - 1] += 1/lines[lkey].X
+                    H[aux, lines[lkey].destiny - 1] += -1 / lines[lkey].X
+                elif measures[key].origin == lines[lkey].destiny:
+                    H[aux, measures[key].origin - 1] += 1 / lines[lkey].X
+                    H[aux, lines[lkey].origin - 1] += -1 / lines[lkey].X
     else:
-        for lkey in lines.keys():
-            if measures[key].origin == lines[lkey].origin:
-                H[aux, measures[key].origin - 1] += 1/lines[lkey].X
-                H[aux, lines[lkey].destiny - 1] += -1 / lines[lkey].X
-            elif measures[key].origin == lines[lkey].destiny:
-                H[aux, measures[key].origin - 1] += 1 / lines[lkey].X
-                H[aux, lines[lkey].origin - 1] += -1 / lines[lkey].X
+        H[aux, measures[key].origin - 1] = 1
 
     # Fill measurement vector
     z[aux] = measures[key].value
