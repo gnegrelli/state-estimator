@@ -143,5 +143,9 @@ for key in measures.keys():
 
     aux += 1
 
+# Exclude column for Vθ buses
+for key in sorted(buses.keys(), reverse=True):
+    if buses[key].bustype == 'Vθ':
+        H = np.delete(H, int(key)-1, 1)
+
 print(H)
-print(z)
