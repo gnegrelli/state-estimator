@@ -28,14 +28,33 @@ class Bus:
         self.theta = 1
 
 
-measures = {}
-
+# Importing data
 data_measures = open("Measurements.txt", "r").read().split("\n")
+datasets = open("System.txt", "r").read().split("9999\n")
 
-for each_line in data_measures:
-    if each_line and each_line[0] is not '%':
-        measures[each_line.split("\t")[0] + '_' + each_line.split("\t")[1]] = Measurement(each_line.split("\t"))
+# Create measurement objects
+measures = dict()
 
 
-for key in measures.keys():
-    print(measures[key].value)
+for row in data_measures:
+    if row.strip() and row[0] is not '%':
+        measures[row.split("\t")[0] + '_' + row.split("\t")[1]] = Measurement(row.split("\t"))
+
+
+# Create bus objects
+buses = dict()
+bus_set = datasets[0].split('\n')
+
+for row in bus_set:
+    if row.strip():
+        print(row)
+        # buses[str(int(row[0:4]))] = Bus(row)
+
+# Create line objects
+lines = dict()
+line_set = datasets[1].split("\n")
+
+for row in line_set:
+    if row.strip():
+        print(row)
+        # lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
