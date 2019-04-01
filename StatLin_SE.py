@@ -124,15 +124,17 @@ H = np.zeros((len(measures.keys()), len(buses.keys())))
 # Create measurement vector
 z = np.zeros((len(measures.keys()), 1))
 
-# Fill Jacobian matrix and measurement vector
+# Create weight matrix
+W = np.zeros((len(measures.keys()), len(measures.keys())))
+
+# Fill Jacobian matrix, measurement vector and weight matrix
 aux = 0
 for key in measures.keys():
 
+    # Fill Jacobiam matrix
     if key.split("-")[1] is not "*":
-
         H[aux, measures[key].origin - 1] = 1/np.imag(1/-Ybus[measures[key].origin - 1, measures[key].destiny - 1])
         H[aux, measures[key].destiny - 1] = -1/np.imag(1/-Ybus[measures[key].origin - 1, measures[key].destiny - 1])
-
     else:
         for lkey in lines.keys():
             if measures[key].origin == lines[lkey].origin:
@@ -142,7 +144,12 @@ for key in measures.keys():
                 H[aux, measures[key].origin - 1] += 1 / lines[lkey].X
                 H[aux, lines[lkey].origin - 1] += -1 / lines[lkey].X
 
+    # Fill measurement vector
     z[aux] = measures[key].value
+
+    # Fill weight matrix
+    if wls:
+        W[aux, aux] = 1/measures[key].std_dev**2
 
     aux += 1
 
@@ -153,5 +160,12 @@ for key in sorted(buses.keys(), reverse=True):
 
 if not wls:
     x_hat = np.linalg.solve(np.dot(H.T, H), np.dot(H.T, z))
+    print("Least-Square State Estimator")
 else:
-    None
+    H_til = np.dot(np.sqrt(W), H)
+    z_til = np.dot(np.sqrt(W), z)
+
+    x_hat = np.linalg.solve(np.dot(H_til.T, H_til), np.dot(H_til.T, z_til))
+    print("Weighted Least-Square State Estimator")
+
+print(x_hat)
