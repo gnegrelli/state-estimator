@@ -11,12 +11,25 @@ class Measurement:
 
 class Line:
 
-    def __init__(self, line_data):
-        self.origin = 1
-        self.destiny = 1
-        self.R = 1
-        self.X = 1
-        self.B = 1
+    def __init__(self, dataline):
+
+        self.origin = int(dataline[0:4].strip())
+        self.destiny = int(dataline[4:12].strip())
+
+        if dataline[16:23].strip():
+            self.R = float(dataline[16:23])
+        else:
+            self.R = 0.
+
+        if dataline[23:29].strip():
+            self.X = float(dataline[23:29])
+        else:
+            self.X = 0.
+
+        if dataline[29:35].strip():
+            self.B = float(dataline[29:35])
+        else:
+            self.B = 0.
 
 
 class Bus:
@@ -81,5 +94,4 @@ line_set = datasets[1].split("\n")
 
 for row in line_set:
     if row.strip():
-        print(row)
-        # lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
+        lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
