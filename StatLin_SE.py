@@ -73,6 +73,9 @@ class Bus:
         self.Q = (q[0] - q[1])
 
 
+# Flag for WLS or LS state estimator
+wls = False
+
 # Importing data
 data_measures = open("Measurements.txt", "r").read().split("\n")
 datasets = open("System.txt", "r").read().split("9999\n")
@@ -148,4 +151,7 @@ for key in sorted(buses.keys(), reverse=True):
     if buses[key].bustype == 'Vθ':
         H = np.delete(H, int(key)-1, 1)
 
-print(H)
+if not wls:
+    x_hat = np.linalg.solve(np.dot(H.T, H), np.dot(H.T, z))
+else:
+    None
