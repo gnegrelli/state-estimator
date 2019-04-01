@@ -21,11 +21,37 @@ class Line:
 
 class Bus:
 
-    def __init__(self, bus_data):
-        self.ID = 1
-        self.bustype = 1
-        self.V = 1
-        self.theta = 1
+    def __init__(self, databus):
+
+        bustypes = {'0': 'PQ', '1': 'PV', '2': 'Vθ'}
+
+        self.ID = int(databus[0:4])
+        self.name = databus[8:22]
+        self.bustype = bustypes[databus[4:8].strip()]
+
+        self.V = float(databus[22:26]) / 1000
+
+        if databus[26:30].strip():
+            self.theta = float(databus[26:30])
+        else:
+            self.theta = 0.
+
+        p = []
+        q = []
+        for item in [databus[30:35], databus[56:60]]:
+            if not item.strip():
+                p.append(0.)
+            else:
+                p.append(float(item))
+
+        for item in [databus[35:40], databus[60:65]]:
+            if not item.strip():
+                q.append(0.)
+            else:
+                q.append(float(item))
+
+        self.P = (p[0] - p[1])
+        self.Q = (q[0] - q[1])
 
 
 # Importing data
@@ -47,8 +73,7 @@ bus_set = datasets[0].split('\n')
 
 for row in bus_set:
     if row.strip():
-        print(row)
-        # buses[str(int(row[0:4]))] = Bus(row)
+        buses[str(int(row[0:4]))] = Bus(row)
 
 # Create line objects
 lines = dict()
