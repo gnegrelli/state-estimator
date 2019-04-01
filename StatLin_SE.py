@@ -79,7 +79,7 @@ class Bus:
 wls = not False
 
 # Importing data
-data_measures = open("Measurements2.txt", "r").read().split("\n")
+data_measures = open("Measurements3.txt", "r").read().split("\n")
 datasets = open("System2.txt", "r").read().split("9999\n")
 
 # Create measurement objects
@@ -163,6 +163,7 @@ for key in sorted(buses.keys(), reverse=True):
     if buses[key].bustype == 'Vθ':
         H = np.delete(H, int(key)-1, 1)
 
+# Calculate states
 if not wls:
     x_hat = np.linalg.solve(np.dot(H.T, H), np.dot(H.T, z))
     print("Least-Square State Estimator")
@@ -174,3 +175,8 @@ else:
     print("Weighted Least-Square State Estimator")
 
 print(x_hat)
+
+# Residue calculation
+r = z - np.dot(H, x_hat)
+
+print(r)
