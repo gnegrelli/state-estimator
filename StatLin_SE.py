@@ -96,11 +96,23 @@ for row in line_set:
     if row.strip():
         lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
 
+# Nodal Admitance Matrix
+Ybus = np.zeros((len(buses.keys()), len(buses.keys())), dtype=complex)
+
+# Shunt Elements Vector
+Bshunt = np.zeros(len(buses), dtype=complex)
+
+for key in lines.keys():
+    Ybus[lines[key].origin - 1][lines[key].destiny - 1] = -1/(lines[key].R + 1j*lines[key].X)
+    Bshunt[lines[key].origin - 1] += 1j*lines[key].B/2
+    Bshunt[lines[key].destiny - 1] += 1j*lines[key].B/2
+
+Ybus += Ybus.T
+
+np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
+
 # Create Jacobian Matrix
 H = np.zeros((len(measures.keys()), len(buses.keys())))
 
 # Create estimated state vector
 x_hat = np.zeros((len(buses.keys()), 1))
-
-print(measures.keys(), len(measures.keys()))
-
