@@ -5,8 +5,12 @@ class Measurement:
 
     def __init__(self, meas_data):
 
-        self.origin = meas_data[0]
-        self.destiny = meas_data[1]
+        self.origin = int(meas_data[0])
+        if meas_data[1] == "*":
+            self.destiny = meas_data[1]
+        else:
+            self.destiny = int(meas_data[1])
+
         self.value = float(meas_data[2])
         self.std_dev = float(meas_data[3])
 
@@ -114,5 +118,30 @@ np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 # Create Jacobian Matrix
 H = np.zeros((len(measures.keys()), len(buses.keys())))
 
-# Create estimated state vector
-x_hat = np.zeros((len(buses.keys()), 1))
+# Create measurement vector
+z = np.zeros((len(measures.keys()), 1))
+
+# Fill Jacobian matrix and measurement vector
+aux = 0
+for key in measures.keys():
+
+    if key.split("-")[1] is not "*":
+
+        H[aux, measures[key].origin - 1] = 1/np.imag(1/-Ybus[measures[key].origin - 1, measures[key].destiny - 1])
+        H[aux, measures[key].destiny - 1] = -1/np.imag(1/-Ybus[measures[key].origin - 1, measures[key].destiny - 1])
+
+    else:
+        for lkey in lines.keys():
+            if measures[key].origin == lines[lkey].origin:
+                H[aux, measures[key].origin - 1] += 1/lines[lkey].X
+                H[aux, lines[lkey].destiny - 1] += -1 / lines[lkey].X
+            elif measures[key].origin == lines[lkey].destiny:
+                H[aux, measures[key].origin - 1] += 1 / lines[lkey].X
+                H[aux, lines[lkey].origin - 1] += -1 / lines[lkey].X
+
+    z[aux] = measures[key].value
+
+    aux += 1
+
+print(H)
+print(z)
