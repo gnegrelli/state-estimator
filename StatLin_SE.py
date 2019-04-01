@@ -1,8 +1,10 @@
+import numpy as np
 
 
 class Measurement:
 
     def __init__(self, meas_data):
+
         self.origin = meas_data[0]
         self.destiny = meas_data[1]
         self.value = float(meas_data[2])
@@ -42,7 +44,7 @@ class Bus:
         self.name = databus[8:22]
         self.bustype = bustypes[databus[4:8].strip()]
 
-        self.V = float(databus[22:26]) / 1000
+        self.V = float(databus[22:26])/1000
 
         if databus[26:30].strip():
             self.theta = float(databus[26:30])
@@ -74,11 +76,9 @@ datasets = open("System.txt", "r").read().split("9999\n")
 # Create measurement objects
 measures = dict()
 
-
 for row in data_measures:
     if row.strip() and row[0] is not '%':
-        measures[row.split("\t")[0] + '_' + row.split("\t")[1]] = Measurement(row.split("\t"))
-
+        measures[row.split("\t")[0] + '-' + row.split("\t")[1]] = Measurement(row.split("\t"))
 
 # Create bus objects
 buses = dict()
@@ -95,3 +95,12 @@ line_set = datasets[1].split("\n")
 for row in line_set:
     if row.strip():
         lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
+
+# Create Jacobian Matrix
+H = np.zeros((len(measures.keys()), len(buses.keys())))
+
+# Create estimated state vector
+x_hat = np.zeros((len(buses.keys()), 1))
+
+print(measures.keys(), len(measures.keys()))
+
