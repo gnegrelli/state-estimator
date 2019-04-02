@@ -174,9 +174,11 @@ else:
     x_hat = np.linalg.solve(np.dot(H_til.T, H_til), np.dot(H_til.T, z_til))
     print("Weighted Least-Square State Estimator")
 
+print("\nEstimated States:")
 print(x_hat)
 
 # Residue calculation
 r = z - np.dot(H, x_hat)
 
+print("\nResidue:")
 print(r)
