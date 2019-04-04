@@ -134,7 +134,7 @@ W = np.zeros((len(measures.keys()), len(measures.keys())))
 aux = 0
 for key in measures.keys():
 
-    # Fill Jacobiam matrix
+    # Fill Jacobian matrix
     if measures[key].type == 'u':
         if key.split("-")[1] is not "*":
             H[aux, measures[key].origin - 1] = 1/np.imag(1/-Ybus[measures[key].origin - 1, measures[key].destiny - 1])
