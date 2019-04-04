@@ -79,8 +79,8 @@ class Bus:
 wls = not False
 
 # Importing data
-data_measures = open("Measurements3.txt", "r").read().split("\n")
-datasets = open("System2.txt", "r").read().split("9999\n")
+data_measures = open("Measurements.txt", "r").read().split("\n")
+datasets = open("System.txt", "r").read().split("9999\n")
 
 # Create measurement objects
 measures = dict()
