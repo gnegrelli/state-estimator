@@ -180,5 +180,23 @@ print(x_hat)
 # Residue calculation
 r = z - np.dot(H, x_hat)
 
+
+# Gain Matrix
+G = np.dot(H.T, np.dot(W, H))
+
+# Covariance matrix of residues
+Omega = np.linalg.inv(W) - np.dot(H, np.linalg.solve(G, H.T))
+
+# Normalized residue calculation
+r_n = np.abs(r.T/np.sqrt(np.diag(Omega))).T
+
 print("\nResidue:")
 print(r)
+
+
+print("\nNormalized Residue:")
+for i in r_n:
+    print("%.5f" % i[0])
+
+
+
