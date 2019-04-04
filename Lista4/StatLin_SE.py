@@ -180,7 +180,6 @@ print(x_hat)
 # Residue calculation
 r = z - np.dot(H, x_hat)
 
-
 # Gain Matrix
 G = np.dot(H.T, np.dot(W, H))
 
@@ -191,12 +190,13 @@ Omega = np.linalg.inv(W) - np.dot(H, np.linalg.solve(G, H.T))
 r_n = np.abs(r.T/np.sqrt(np.diag(Omega))).T
 
 print("\nResidue:")
-print(r)
+for item in r:
+    print("%.5f" % item[0])
 
 
 print("\nNormalized Residue:")
-for i in r_n:
-    print("%.5f" % i[0])
-
-
-
+for item in r_n:
+    if item == max(r_n):
+        print('\033[91m' + "%.5f" % item[0] + '\033[0m')
+    else:
+        print("%.5f" % item[0])
