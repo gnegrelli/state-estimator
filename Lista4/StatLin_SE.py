@@ -59,6 +59,7 @@ class Bus:
 
         p = []
         q = []
+
         for item in [databus[30:35], databus[56:60]]:
             if not item.strip():
                 p.append(0.)
@@ -175,7 +176,8 @@ else:
     print("Weighted Least-Square State Estimator")
 
 print("\nEstimated States:")
-print(x_hat)
+for item in x_hat:
+    print("%.6f" % item[0])
 
 # Residue calculation
 r = z - np.dot(H, x_hat)
@@ -197,6 +199,6 @@ for item in r:
 print("\nNormalized Residue:")
 for item in r_n:
     if item == max(r_n):
-        print('\033[91m' + "%.5f" % item[0] + '\033[0m')
+        print('\033[31m' + "%.5f" % item[0] + '\033[0m')
     else:
         print("%.5f" % item[0])
