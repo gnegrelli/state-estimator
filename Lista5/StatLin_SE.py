@@ -225,3 +225,26 @@ if max(r_n) > 3:
     print("\nNew Estimated States:")
     for item in x_hat_new:
         print("%.6f" % item[0])
+
+    # Residue calculation
+    r = z_new - np.dot(H_new, x_hat_new)
+
+    # Gain Matrix
+    G = np.dot(H_new.T, np.dot(W_new, H_new))
+
+    # Covariance matrix of residues
+    Omega = np.linalg.inv(W_new) - np.dot(H_new, np.linalg.solve(G, H_new.T))
+
+    # Normalized residue calculation
+    r_n = np.abs(r.T/np.sqrt(np.diag(Omega))).T
+
+    print("\nNew Residue:")
+    for item in r:
+        print("%.5f" % item[0])
+
+    print("\nNew Normalized Residue:")
+    for item in r_n:
+        if item == max(r_n):
+            print('\033[31m' + "%.5f" % item[0] + '\033[0m')
+        else:
+            print("%.5f" % item[0])
