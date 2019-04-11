@@ -204,6 +204,8 @@ for item in r_n:
 
 if max(r_n) > 3:
 
+    print("\nEliminating measure with highest normalized residue")
+
     # Obtain position of maximum normalized residue
     m = r_n.argmax()
 
@@ -212,17 +214,14 @@ if max(r_n) > 3:
     H_new = np.delete(H, m, axis=0)
     W_new = np.delete(np.delete(W, m, axis=1), m, axis=0)
 
-'''
     # Recalculate states
     if not wls:
         x_hat_new = np.linalg.solve(np.dot(H_new.T, H_new), np.dot(H_new.T, z_new))
-        print("Least-Square State Estimator")
     else:
-        H_til_new = np.dot(np.sqrt(W), H_new)
-        z_til_new = np.dot(np.sqrt(W), z_new)
-
+        H_til_new = np.dot(np.sqrt(W_new), H_new)
+        z_til_new = np.dot(np.sqrt(W_new), z_new)
         x_hat_new = np.linalg.solve(np.dot(H_til_new.T, H_til_new), np.dot(H_til_new.T, z_til_new))
-        print("Weighted Least-Square State Estimator")
-'''
 
-
+    print("\nNew Estimated States:")
+    for item in x_hat_new:
+        print("%.6f" % item[0])
