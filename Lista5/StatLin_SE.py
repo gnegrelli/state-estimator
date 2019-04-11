@@ -77,7 +77,7 @@ class Bus:
 
 
 # Flag for WLS or LS state estimator
-wls = not False
+wls = True
 
 # Importing data
 data_measures = open("Measurements.txt", "r").read().split("\n")
@@ -195,10 +195,34 @@ print("\nResidue:")
 for item in r:
     print("%.5f" % item[0])
 
-
 print("\nNormalized Residue:")
 for item in r_n:
     if item == max(r_n):
         print('\033[31m' + "%.5f" % item[0] + '\033[0m')
     else:
         print("%.5f" % item[0])
+
+if max(r_n) > 3:
+
+    # Obtain position of maximum normalized residue
+    m = r_n.argmax()
+
+    # Delete row of z and column of H correspondent to measure with error
+    z_new = np.delete(z, m, axis=0)
+    H_new = np.delete(H, m, axis=0)
+    W_new = np.delete(np.delete(W, m, axis=1), m, axis=0)
+
+'''
+    # Recalculate states
+    if not wls:
+        x_hat_new = np.linalg.solve(np.dot(H_new.T, H_new), np.dot(H_new.T, z_new))
+        print("Least-Square State Estimator")
+    else:
+        H_til_new = np.dot(np.sqrt(W), H_new)
+        z_til_new = np.dot(np.sqrt(W), z_new)
+
+        x_hat_new = np.linalg.solve(np.dot(H_til_new.T, H_til_new), np.dot(H_til_new.T, z_til_new))
+        print("Weighted Least-Square State Estimator")
+'''
+
+
