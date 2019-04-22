@@ -242,9 +242,7 @@ while max(r_n) > 3 and counter < len(z):
     elif recuperate:
         # Recuperate measurement with error
         print("\nRecuperating measure with highest normalized residue")
-        delta_z = np.ones_like(z)
-        delta_z[m] = - r[m]/(np.diag(W)[m]*np.diag(Omega)[m])
-        z += delta_z
+        z[m] += -r[m]/(np.diag(W)[m]*np.diag(Omega)[m])
         H = H
         W = W
 
