@@ -216,41 +216,41 @@ while max(r_n) > 3:
     if eliminate:
         # Delete row of z and column of H correspondent to measurement with error
         print("\nEliminating measure with highest normalized residue")
-        z_new = np.delete(z, m, axis=0)
-        H_new = np.delete(H, m, axis=0)
-        W_new = np.delete(np.delete(W, m, axis=1), m, axis=0)
+        z = np.delete(z, m, axis=0)
+        H = np.delete(H, m, axis=0)
+        W = np.delete(np.delete(W, m, axis=1), m, axis=0)
 
         # Recalculate Gain and Covariance of Residues Matrices
-        G = np.dot(H_new.T, np.dot(W_new, H_new))
-        Omega = np.linalg.inv(W_new) - np.dot(H_new, np.linalg.solve(G, H_new.T))
+        G = np.dot(H.T, np.dot(W, H))
+        Omega = np.linalg.inv(W) - np.dot(H, np.linalg.solve(G, H.T))
 
     elif recuperate:
         # Recuperate measurement with error
         print("\nRecuperating measure with highest normalized residue")
         delta_z = np.ones_like(z)
         delta_z[m] = - r[m]/(np.diag(W)[m]*np.diag(Omega)[m])
-        z_new = z + delta_z
-        H_new = H
-        W_new = W
+        z += delta_z
+        H = H
+        W = W
 
     # Recalculate states
     if not wls:
-        x_hat_new = np.linalg.solve(np.dot(H_new.T, H_new), np.dot(H_new.T, z_new))
+        x_hat = np.linalg.solve(np.dot(H.T, H), np.dot(H.T, z))
     else:
-        H_til_new = np.dot(np.sqrt(W_new), H_new)
-        z_til_new = np.dot(np.sqrt(W_new), z_new)
-        x_hat_new = np.linalg.solve(G, np.dot(H_til_new.T, z_til_new))
+        H_til = np.dot(np.sqrt(W), H)
+        z_til = np.dot(np.sqrt(W), z)
+        x_hat = np.linalg.solve(G, np.dot(H_til.T, z_til))
 
     print("\nNew Measurements:")
-    for item in z_new:
+    for item in z:
         print("%.6f" % item[0])
 
     print("\nNew Estimated States:")
-    for item in x_hat_new:
+    for item in x_hat:
         print("%.6f" % item[0])
 
     # Residue recalculation
-    r = z_new - np.dot(H_new, x_hat_new)
+    r = z - np.dot(H, x_hat)
 
     # Normalized residue recalculation
     r_n = np.abs(r.T/np.sqrt(np.diag(Omega))).T
