@@ -208,7 +208,22 @@ for item in r_n:
 eliminate = not True
 recuperate = True
 
-while max(r_n) > 3:
+# Counter of number of iterations
+counter = 0
+
+while max(r_n) > 3 and counter < len(z):
+
+    counter += 1
+
+    if counter % 10 == 1:
+        print("\n%dst Iteration" % counter)
+    elif counter % 10 == 2:
+        print("\n%dnd Iteration" % counter)
+    elif counter % 10 == 3:
+        print("\n%drd Iteration" % counter)
+    else:
+        print("\n%dth Iteration" % counter)
+    print(50*"-")
 
     # Obtain position of maximum normalized residue
     m = r_n.argmax()
