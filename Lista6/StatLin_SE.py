@@ -202,7 +202,7 @@ for item in r_n:
     else:
         print("%.5f" % item[0])
 
-if max(r_n) > 3:
+while max(r_n) > 3:
 
     print("\nEliminating measure with highest normalized residue")
 
