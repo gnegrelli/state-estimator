@@ -164,7 +164,23 @@ Ybus += Ybus.T
 
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 
-buses['2'].theta = 0.5
+
+# Calculation of power injected to each bus
+for bus in buses.values():
+    p, q = 0, 0
+
+    for otherbus in buses.values():
+
+        # Calculate angle difference
+        theta_km = bus.theta - otherbus.theta
+
+        # Calculate active and reactive power reaching bus
+        p += bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(theta_km) + np.imag(Ybus[bus.ID - 1, otherbus.ID - 1]*np.sin(theta_km)))
+        q += bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(theta_km) - np.imag(Ybus[bus.ID - 1, otherbus.ID - 1]*np.cos(theta_km)))
+
+    # Save calculated values of power
+    bus.save_power(p, q)
+
 
 # Calculation of power flowing through lines
 for line in lines.values():
@@ -179,14 +195,10 @@ for line in lines.values():
     pkm = (Vk**2)*np.real(Y) - Vk*Vm*(np.real(Y)*np.cos(theta_km) + np.imag(Y)*np.sin(theta_km))
     qkm = -(Vk**2)*(np.imag(Y) + line.B/2) - Vk*Vm*(np.real(Y)*np.sin(theta_km) - np.imag(Y)*np.cos(theta_km))
 
-    print(pkm)
-
     line.save_flow(pkm, qkm, line.origin)
 
     pmk = (Vm**2)*np.real(Y) - Vm*Vk*(np.real(Y)*np.cos(-theta_km) + np.imag(Y)*np.sin(-theta_km))
     qmk = -(Vm**2)*(np.imag(Y) + line.B/2) - Vk*Vm*(np.real(Y)*np.sin(-theta_km) - np.imag(Y)*np.cos(-theta_km))
-
-    print(pmk)
 
     line.save_flow(pmk, qmk, line.destiny)
 
@@ -217,23 +229,29 @@ for key in buses.keys():
     if buses[key].P_m is not 0 and buses[key].Q_m is not 0:
         z_p = np.hstack((z_p, np.array([buses[key].P_m])))
         w_p = np.hstack((w_p, np.array([buses[key].sd_P])))
+        h_p = np.hstack((h_p, np.array([np.real(buses[key].P)])))
 
         z_q = np.hstack((z_q, np.array([buses[key].Q_m])))
         w_q = np.hstack((w_q, np.array([buses[key].sd_Q])))
+        h_q = np.hstack((h_q, np.array([np.real(buses[key].Q)])))
 
     if buses[key].V_m is not 0:
         z_v = np.hstack((z_v, np.array([buses[key].V_m])))
         w_v = np.hstack((w_v, np.array([buses[key].sd_V])))
+        h_v = np.hstack((h_v, np.array([buses[key].V])))
 
 # print(z_p.reshape((len(z_p), 1)))
 
 z = np.hstack((z_p, z_q, z_v))
 
+h = np.hstack((h_p, h_q, h_v))
+
 W = np.zeros((len(z), len(z)))
 np.fill_diagonal(W, np.hstack((w_p, w_q, w_v)))
 
-print(h_p)
-print(h_q)
+print(z)
+
+print(h)
 
 '''
 # Create Jacobian Matrix
