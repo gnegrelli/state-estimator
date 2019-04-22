@@ -42,6 +42,7 @@ class Line:
             self.Q_m = float(data[2])
             self.sd_Q = float(data[3])
 
+    # Function to save values of power
     def save_flow(self, p, q, bus_origin):
         if bus_origin == self.origin:
             self.S_od = p + 1j*q
@@ -104,6 +105,12 @@ class Bus:
         else:
             self.Q_m = float(data[2])
             self.sd_Q = float(data[3])
+
+    # Function to save values of power
+    def save_power(self, p, q):
+
+            self.P = p
+            self.Q = q
 
 
 # Flag for WLS or LS state estimator
