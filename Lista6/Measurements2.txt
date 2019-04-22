@@ -1,0 +1,7 @@
+%De     Para    Valor   DesvPad	Un/Direct
+1	2	0.52	1	u
+2	1	-0.45	1	u
+1	2	0.10	1	u
+2	1	-0.05	1	u
+1	*	1.00	1	d
+2	*	0.95	1	d
