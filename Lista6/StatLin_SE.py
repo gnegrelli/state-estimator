@@ -202,6 +202,12 @@ for item in r_n:
     else:
         print("%.5f" % item[0])
 
+# Treating Gross Error in measurements
+
+# Flags for eliminate or recuperate measures with error
+eliminate = True
+recuperate = True
+
 while max(r_n) > 3:
 
     print("\nEliminating measure with highest normalized residue")
@@ -210,9 +216,16 @@ while max(r_n) > 3:
     m = r_n.argmax()
 
     # Delete row of z and column of H correspondent to measure with error
-    z_new = np.delete(z, m, axis=0)
-    H_new = np.delete(H, m, axis=0)
-    W_new = np.delete(np.delete(W, m, axis=1), m, axis=0)
+    if eliminate:
+        z_new = np.delete(z, m, axis=0)
+        H_new = np.delete(H, m, axis=0)
+        W_new = np.delete(np.delete(W, m, axis=1), m, axis=0)
+    elif recuperate:
+        delta_z = np.ones_like(z)
+        delta_z[m] = - r[m]/(np.diag(W)[m]*np.diag(Omega)[m])
+        z_new = z + delta_z
+        H_new = H
+        W_new = W
 
     # Recalculate states
     if not wls:
