@@ -205,22 +205,28 @@ for item in r_n:
 # Treating Gross Error in measurements
 
 # Flags for eliminate or recuperate measures with error
-eliminate = True
+eliminate = not True
 recuperate = True
 
 while max(r_n) > 3:
 
-    print("\nEliminating measure with highest normalized residue")
-
     # Obtain position of maximum normalized residue
     m = r_n.argmax()
 
-    # Delete row of z and column of H correspondent to measure with error
     if eliminate:
+        # Delete row of z and column of H correspondent to measurement with error
+        print("\nEliminating measure with highest normalized residue")
         z_new = np.delete(z, m, axis=0)
         H_new = np.delete(H, m, axis=0)
         W_new = np.delete(np.delete(W, m, axis=1), m, axis=0)
+
+        # Recalculate Gain and Covariance of Residues Matrices
+        G = np.dot(H_new.T, np.dot(W_new, H_new))
+        Omega = np.linalg.inv(W_new) - np.dot(H_new, np.linalg.solve(G, H_new.T))
+
     elif recuperate:
+        # Recuperate measurement with error
+        print("\nRecuperating measure with highest normalized residue")
         delta_z = np.ones_like(z)
         delta_z[m] = - r[m]/(np.diag(W)[m]*np.diag(Omega)[m])
         z_new = z + delta_z
@@ -233,22 +239,20 @@ while max(r_n) > 3:
     else:
         H_til_new = np.dot(np.sqrt(W_new), H_new)
         z_til_new = np.dot(np.sqrt(W_new), z_new)
-        x_hat_new = np.linalg.solve(np.dot(H_til_new.T, H_til_new), np.dot(H_til_new.T, z_til_new))
+        x_hat_new = np.linalg.solve(G, np.dot(H_til_new.T, z_til_new))
+
+    print("\nNew Measurements:")
+    for item in z_new:
+        print("%.6f" % item[0])
 
     print("\nNew Estimated States:")
     for item in x_hat_new:
         print("%.6f" % item[0])
 
-    # Residue calculation
+    # Residue recalculation
     r = z_new - np.dot(H_new, x_hat_new)
 
-    # Gain Matrix
-    G = np.dot(H_new.T, np.dot(W_new, H_new))
-
-    # Covariance matrix of residues
-    Omega = np.linalg.inv(W_new) - np.dot(H_new, np.linalg.solve(G, H_new.T))
-
-    # Normalized residue calculation
+    # Normalized residue recalculation
     r_n = np.abs(r.T/np.sqrt(np.diag(Omega))).T
 
     print("\nNew Residue:")
