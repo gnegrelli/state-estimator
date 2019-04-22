@@ -145,23 +145,37 @@ z_p = np.array([])
 z_q = np.array([])
 z_v = np.array([])
 
+w_p = np.array([])
+w_q = np.array([])
+w_v = np.array([])
+
 for key in lines.keys():
     if lines[key].P_m is not 0 and lines[key].Q_m is not 0:
         z_p = np.hstack((z_p, np.array([lines[key].P_m])))
+        w_p = np.hstack((w_p, np.array([lines[key].sd_P])))
+
         z_q = np.hstack((z_q, np.array([lines[key].Q_m])))
+        w_q = np.hstack((w_q, np.array([lines[key].sd_Q])))
 
 for key in buses.keys():
     if buses[key].P_m is not 0 and buses[key].Q_m is not 0:
         z_p = np.hstack((z_p, np.array([buses[key].P_m])))
+        w_p = np.hstack((w_p, np.array([buses[key].sd_P])))
+
         z_q = np.hstack((z_q, np.array([buses[key].Q_m])))
+        w_q = np.hstack((w_q, np.array([buses[key].sd_Q])))
+
     if buses[key].V_m is not 0:
         z_v = np.hstack((z_v, np.array([buses[key].V_m])))
+        w_v = np.hstack((w_v, np.array([buses[key].sd_V])))
 
 # print(z_p.reshape((len(z_p), 1)))
 
 z = np.hstack((z_p, z_q, z_v))
 
-print(z)
+W = np.zeros((len(z), len(z)))
+np.fill_diagonal(W, np.hstack((w_p, w_q, w_v)))
+
 '''
 # Create Jacobian Matrix
 H = np.zeros((len(measures.keys()), len(buses.keys())))
