@@ -117,14 +117,17 @@ for row in line_set:
         lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
 
 # Add measurements to objects
-measures = dict()
-
 for row in data_measures:
     if row.strip() and row[0] is not '%':
         if row.split("\t")[1] == '*':
             buses[row.split("\t")[0]].add_measure(row.split("\t"))
         else:
             lines[row.split("\t")[0] + '-' + row.split("\t")[1]].add_measure(row.split("\t"))
+
+# Flat Start
+for bus in buses.values():
+    bus.V = 1
+    bus.theta = 0
 
 # Nodal Admitance Matrix
 Ybus = np.zeros((len(buses.keys()), len(buses.keys())), dtype=complex)
