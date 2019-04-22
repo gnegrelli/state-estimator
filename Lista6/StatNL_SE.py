@@ -39,6 +39,22 @@ class Line:
         else:
             self.B = 0.
 
+        self.P_m = 0
+        self.sd_P = 0
+        self.Q_m = 0
+        self.sd_Q = 0
+
+    def add_measure(self, data):
+
+        if not self.P_m:
+            self.P_m = float(data[2])
+            self.sd_P = float(data[3])
+        else:
+            self.Q_m = float(data[2])
+            self.sd_Q = float(data[3])
+
+
+
 
 class Bus:
 
@@ -75,20 +91,32 @@ class Bus:
         self.P = (p[0] - p[1])
         self.Q = (q[0] - q[1])
 
+        self.P_m = 0
+        self.sd_P = 0
+        self.Q_m = 0
+        self.sd_Q = 0
+        self.V_m = 0
+        self.sd_V = 0
+
+    def add_measure(self, data):
+
+        if data[4] == 'd':
+            self.V_m = float(data[2])
+            self.sd_V = float(data[3])
+        elif not self.P:
+            self.P_m = float(data[2])
+            self.sd_P = float(data[3])
+        else:
+            self.Q_m = float(data[2])
+            self.sd_Q = float(data[3])
+
 
 # Flag for WLS or LS state estimator
 wls = True
 
 # Importing data
-data_measures = open("Measurements.txt", "r").read().split("\n")
-datasets = open("System.txt", "r").read().split("9999\n")
-
-# Create measurement objects
-measures = dict()
-
-for row in data_measures:
-    if row.strip() and row[0] is not '%':
-        measures[row.split("\t")[0] + '-' + row.split("\t")[1]] = Measurement(row.split("\t"))
+data_measures = open("Measurements2.txt", "r").read().split("\n")
+datasets = open("System2.txt", "r").read().split("9999\n")
 
 # Create bus objects
 buses = dict()
@@ -106,6 +134,16 @@ for row in line_set:
     if row.strip():
         lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
 
+# Add measurements to objects
+measures = dict()
+
+for row in data_measures:
+    if row.strip() and row[0] is not '%':
+        if row.split("\t")[1] == '*':
+            buses[row.split("\t")[0]].add_measure(row.split("\t"))
+        else:
+            lines[row.split("\t")[0] + '-' + row.split("\t")[1]].add_measure(row.split("\t"))
+
 # Nodal Admitance Matrix
 Ybus = np.zeros((len(buses.keys()), len(buses.keys())), dtype=complex)
 
@@ -121,6 +159,8 @@ Ybus += Ybus.T
 
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 
+print(Ybus)
+'''
 # Create Jacobian Matrix
 H = np.zeros((len(measures.keys()), len(buses.keys())))
 
@@ -278,3 +318,4 @@ while max(r_n) > 3 and counter < len(z):
             print('\033[31m' + "%.5f" % item[0] + '\033[0m')
         else:
             print("%.5f" % item[0])
+'''
