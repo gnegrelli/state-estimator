@@ -1,22 +1,6 @@
 import numpy as np
 
 
-class Measurement:
-
-    def __init__(self, meas_data):
-
-        self.origin = int(meas_data[0])
-        if meas_data[1] == "*":
-            self.destiny = meas_data[1]
-        else:
-            self.destiny = int(meas_data[1])
-
-        self.value = float(meas_data[2])
-        self.std_dev = float(meas_data[3])
-
-        self.type = meas_data[4]
-
-
 class Line:
 
     def __init__(self, dataline):
@@ -52,8 +36,6 @@ class Line:
         else:
             self.Q_m = float(data[2])
             self.sd_Q = float(data[3])
-
-
 
 
 class Bus:
@@ -159,7 +141,27 @@ Ybus += Ybus.T
 
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 
-print(Ybus)
+z_p = np.array([])
+z_q = np.array([])
+z_v = np.array([])
+
+for key in lines.keys():
+    if lines[key].P_m is not 0 and lines[key].Q_m is not 0:
+        z_p = np.hstack((z_p, np.array([lines[key].P_m])))
+        z_q = np.hstack((z_q, np.array([lines[key].Q_m])))
+
+for key in buses.keys():
+    if buses[key].P_m is not 0 and buses[key].Q_m is not 0:
+        z_p = np.hstack((z_p, np.array([buses[key].P_m])))
+        z_q = np.hstack((z_q, np.array([buses[key].Q_m])))
+    if buses[key].V_m is not 0:
+        z_v = np.hstack((z_v, np.array([buses[key].V_m])))
+
+# print(z_p.reshape((len(z_p), 1)))
+
+z = np.hstack((z_p, z_q, z_v))
+
+print(z)
 '''
 # Create Jacobian Matrix
 H = np.zeros((len(measures.keys()), len(buses.keys())))
