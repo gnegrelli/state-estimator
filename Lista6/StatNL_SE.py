@@ -214,7 +214,7 @@ w_v = np.array([])
 
 H_p = np.array([])
 H_q = np.array([])
-H_v = np.array([])
+H_v = np.hstack((np.zeros((len(buses), len(buses) - 1)), np.eye(len(buses))))
 
 for line in lines.values():
     if line.P_m is not 0 and line.Q_m is not 0:
@@ -248,22 +248,23 @@ for line in lines.values():
                 H_q = np.hstack((H_q, buses[str(line.origin)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.origin)].theta))))
 
 
-for key in buses.keys():
-    if buses[key].P_m is not 0 and buses[key].Q_m is not 0:
-        z_p = np.hstack((z_p, np.array([buses[key].P_m])))
-        w_p = np.hstack((w_p, np.array([buses[key].sd_P])))
-        h_p = np.hstack((h_p, np.array([np.real(buses[key].P)])))
+for bus in buses.values():
+    if bus.P_m is not 0 and bus.Q_m is not 0:
+        z_p = np.hstack((z_p, np.array([bus.P_m])))
+        w_p = np.hstack((w_p, np.array([bus.sd_P])))
+        h_p = np.hstack((h_p, np.array([np.real(bus.P)])))
 
-        z_q = np.hstack((z_q, np.array([buses[key].Q_m])))
-        w_q = np.hstack((w_q, np.array([buses[key].sd_Q])))
-        h_q = np.hstack((h_q, np.array([np.real(buses[key].Q)])))
+        z_q = np.hstack((z_q, np.array([bus.Q_m])))
+        w_q = np.hstack((w_q, np.array([bus.sd_Q])))
+        h_q = np.hstack((h_q, np.array([np.real(bus.Q)])))
 
-    if buses[key].V_m is not 0:
-        z_v = np.hstack((z_v, np.array([buses[key].V_m])))
-        w_v = np.hstack((w_v, np.array([buses[key].sd_V])))
-        h_v = np.hstack((h_v, np.array([buses[key].V])))
+        # I should calculate H_p and H_q here. I don't want though
 
-# print(z_p.reshape((len(z_p), 1)))
+    if bus.V_m is not 0:
+        z_v = np.hstack((z_v, np.array([bus.V_m])))
+        w_v = np.hstack((w_v, np.array([bus.sd_V])))
+        h_v = np.hstack((h_v, np.array([bus.V])))
+
 
 z = np.hstack((z_p, z_q, z_v))
 
@@ -272,7 +273,9 @@ h = np.hstack((h_p, h_q, h_v))
 W = np.zeros((len(z), len(z)))
 np.fill_diagonal(W, np.hstack((w_p, w_q, w_v)))
 
-print(H_p)
+H = np.hstack((H_p, H_q, H_v.flatten())).reshape((len(z), 2*len(buses)-1))
+
+
 
 
 '''
