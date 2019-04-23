@@ -228,7 +228,7 @@ for line in lines.values():
 
         # Partial derivatives on theta
         for bus in buses.values():
-            if bus.bustype is not 'Vθ':
+            if bus.bustype != 'Vθ':
                 if bus.ID == line.origin:
                     H_p = np.hstack((H_p, buses[str(line.origin)].V*buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.origin)].theta) - np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.origin)].theta))))
                     H_q = np.hstack((H_q, buses[str(line.origin)].V*buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.origin)].theta) - np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.origin)].theta))))
@@ -272,9 +272,8 @@ h = np.hstack((h_p, h_q, h_v))
 W = np.zeros((len(z), len(z)))
 np.fill_diagonal(W, np.hstack((w_p, w_q, w_v)))
 
-print(z)
+print(H_p)
 
-print(Ybus)
 
 '''
 # Create Jacobian Matrix
