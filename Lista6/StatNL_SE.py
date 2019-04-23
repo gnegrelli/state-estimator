@@ -296,8 +296,13 @@ for bus in buses.values():
 # Assembling submatrices to state matrix
 x = np.hstack((x_theta, x_V))
 
-# G =
+# Gain Matrix
+G = np.dot(H.T, np.dot(W, H))
 
+# Update State Values
+x += np.linalg.solve(G, np.dot(H.T, np.dot(W, (z-h).T)))
+
+print(x)
 
 '''
 # Create Jacobian Matrix
