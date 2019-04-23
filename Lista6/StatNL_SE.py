@@ -306,14 +306,17 @@ x = np.hstack((x_theta, x_V))
 G = np.dot(H.T, np.dot(W, H))
 
 # Update State Values
-x += np.linalg.solve(G, np.dot(H.T, np.dot(W, (z-h).T)))
+delta_x = np.linalg.solve(G, np.dot(H.T, np.dot(W, (z-h).T)))
+x += delta_x
 
+
+vtheta = 0
 for bus in buses.values():
     if bus.bustype == 'Vθ':
-        
+        bus.refresh(x[len(buses) + bus.ID - 2], 0)
+        vtheta += 1
     else:
-
-print(x)
+        bus.refresh(x[len(buses) + bus.ID - 2], x[bus.ID - vtheta])
 
 '''
 # Create Jacobian Matrix
