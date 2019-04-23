@@ -42,7 +42,7 @@ class Line:
             self.Q_m = float(data[2])
             self.sd_Q = float(data[3])
 
-    # Function to save values of power
+    # Function to save values of power flowing through line
     def save_flow(self, p, q, bus_origin):
         if bus_origin == self.origin:
             self.S_od = p + 1j*q
@@ -109,8 +109,8 @@ class Bus:
     # Function to save values of power
     def save_power(self, p, q):
 
-            self.P = p
-            self.Q = q
+        self.P = p
+        self.Q = q
 
 
 # Flag for WLS or LS state estimator
@@ -214,6 +214,10 @@ z_v = np.array([])
 w_p = np.array([])
 w_q = np.array([])
 w_v = np.array([])
+
+H_p = np.array([])
+H_q = np.array([])
+H_v = np.array([])
 
 for key in lines.keys():
     if lines[key].P_m is not 0 and lines[key].Q_m is not 0:
