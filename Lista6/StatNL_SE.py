@@ -199,19 +199,22 @@ for line in lines.values():
 
     line.save_flow(pmk, qmk, line.destiny)
 
-
+# Submatrices of vector h (Calculated values of measurements)
 h_p = np.array([])
 h_q = np.array([])
 h_v = np.array([])
 
+# Submatrices of vector z (Measured values)
 z_p = np.array([])
 z_q = np.array([])
 z_v = np.array([])
 
+# Submatrices of vector w (Diagonal of Covariance Matrix)
 w_p = np.array([])
 w_q = np.array([])
 w_v = np.array([])
 
+# Submatrices of matrix H (Jacobian Matrix)
 H_p = np.array([])
 H_q = np.array([])
 H_v = np.hstack((np.zeros((len(buses), len(buses) - 1)), np.eye(len(buses))))
@@ -265,17 +268,35 @@ for bus in buses.values():
         w_v = np.hstack((w_v, np.array([bus.sd_V])))
         h_v = np.hstack((h_v, np.array([bus.V])))
 
+# Assembling submatrices
 
+# Measurements vector
 z = np.hstack((z_p, z_q, z_v))
 
+# Calculated values of measurements
 h = np.hstack((h_p, h_q, h_v))
 
+# Covariance Matrxi
 W = np.zeros((len(z), len(z)))
 np.fill_diagonal(W, np.hstack((w_p, w_q, w_v)))
 
+# Jacobian Matrix
 H = np.hstack((H_p, H_q, H_v.flatten())).reshape((len(z), 2*len(buses)-1))
 
+# Submatrices of states
+x_theta = np.array([])
+x_V = np.array([])
 
+for bus in buses.values():
+    if bus.bustype != 'Vθ':
+        x_theta = np.hstack((x_theta, bus.theta))
+
+    x_V = np.hstack((x_V, bus.V))
+
+# Assembling submatrices to state matrix
+x = np.hstack((x_theta, x_V))
+
+# G =
 
 
 '''
