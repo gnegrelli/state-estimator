@@ -226,14 +226,21 @@ for line in lines.values():
         w_q = np.hstack((w_q, np.array([line.sd_Q])))
         h_q = np.hstack((h_q, np.array([np.imag(line.S_od)])))
 
+        # Partial derivatives on theta
         for bus in buses.values():
             if bus.bustype is not 'Vθ':
                 if bus.ID == line.origin:
                     H_p = np.hstack((H_p, buses[str(line.origin)].V*buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.origin)].theta) - np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.origin)].theta))))
+                    H_q = np.hstack((H_q, buses[str(line.origin)].V*buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.origin)].theta) - np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.origin)].theta))))
                 else:
                     H_p = np.hstack((H_p, buses[str(line.origin)].V*buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.origin)].theta))))
+                    H_q = np.hstack((H_q, buses[str(line.origin)].V*buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.origin)].theta))))
 
-        # for bus in buses.values():
+        # Partial derivatives on V
+        for bus in buses.values():
+            if bus.ID == line.origin:
+                H_p = np.hstack((H_p, 2*buses[str(line.origin)].V*np.real(Ybus[line.origin - 1, line.destiny - 1]) - buses[str(line.destiny)].V
+
 
 for key in buses.keys():
     if buses[key].P_m is not 0 and buses[key].Q_m is not 0:
