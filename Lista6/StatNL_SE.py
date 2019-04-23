@@ -155,15 +155,12 @@ Ybus = np.zeros((len(buses.keys()), len(buses.keys())), dtype=complex)
 # Shunt Elements Vector
 Bshunt = np.zeros(len(buses), dtype=complex)
 
-for key in lines.keys():
-    Ybus[lines[key].origin - 1][lines[key].destiny - 1] = -1/(lines[key].R + 1j*lines[key].X)
-    Bshunt[lines[key].origin - 1] += 1j*lines[key].B/2
-    Bshunt[lines[key].destiny - 1] += 1j*lines[key].B/2
-
-Ybus += Ybus.T
+for line in lines.values():
+    Ybus[line.origin - 1][line.destiny - 1] = -1/(line.R + 1j*line.X)
+    Bshunt[line.origin - 1] += 1j*line.B/2
+    Bshunt[line.destiny - 1] += 1j*line.B/2
 
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
-
 
 # Calculation of power injected to each bus
 for bus in buses.values():
@@ -190,7 +187,7 @@ for line in lines.values():
     Vk = buses[str(line.origin)].V
     Vm = buses[str(line.destiny)].V
 
-    Y = 1/(line.R + 1j*line.X)
+    Y = -Ybus[line.origin - 1, line.destiny - 1]
 
     pkm = (Vk**2)*np.real(Y) - Vk*Vm*(np.real(Y)*np.cos(theta_km) + np.imag(Y)*np.sin(theta_km))
     qkm = -(Vk**2)*(np.imag(Y) + line.B/2) - Vk*Vm*(np.real(Y)*np.sin(theta_km) - np.imag(Y)*np.cos(theta_km))
@@ -219,15 +216,24 @@ H_p = np.array([])
 H_q = np.array([])
 H_v = np.array([])
 
-for key in lines.keys():
-    if lines[key].P_m is not 0 and lines[key].Q_m is not 0:
-        z_p = np.hstack((z_p, np.array([lines[key].P_m])))
-        w_p = np.hstack((w_p, np.array([lines[key].sd_P])))
-        h_p = np.hstack((h_p, np.array([np.real(lines[key].S_od)])))
+for line in lines.values():
+    if line.P_m is not 0 and line.Q_m is not 0:
+        z_p = np.hstack((z_p, np.array([line.P_m])))
+        w_p = np.hstack((w_p, np.array([line.sd_P])))
+        h_p = np.hstack((h_p, np.array([np.real(line.S_od)])))
 
-        z_q = np.hstack((z_q, np.array([lines[key].Q_m])))
-        w_q = np.hstack((w_q, np.array([lines[key].sd_Q])))
-        h_q = np.hstack((h_q, np.array([np.imag(lines[key].S_od)])))
+        z_q = np.hstack((z_q, np.array([line.Q_m])))
+        w_q = np.hstack((w_q, np.array([line.sd_Q])))
+        h_q = np.hstack((h_q, np.array([np.imag(line.S_od)])))
+
+        for bus in buses.values():
+            if bus.bustype is not 'Vθ':
+                if bus.ID == line.origin:
+                    H_p = np.hstack((H_p, buses[str(line.origin)].V*buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.origin)].theta) - np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.origin)].theta))))
+                else:
+                    H_p = np.hstack((H_p, buses[str(line.origin)].V*buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.origin)].theta))))
+
+        # for bus in buses.values():
 
 for key in buses.keys():
     if buses[key].P_m is not 0 and buses[key].Q_m is not 0:
@@ -255,7 +261,7 @@ np.fill_diagonal(W, np.hstack((w_p, w_q, w_v)))
 
 print(z)
 
-print(h)
+print(Ybus)
 
 '''
 # Create Jacobian Matrix
