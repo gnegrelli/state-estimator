@@ -168,6 +168,15 @@ for line in lines.values():
 
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 
+# Tolerance
+tolerance = 0.01
+
+# Maximum absolute value of delta_x will be compared to tolerance. Delta_x is initiated bigger than tolerance
+delta_x = np.array([tolerance + 1, tolerance + 1])
+
+# Iteration counter
+counter = 0
+
 # Calculation of power injected to each bus
 for bus in buses.values():
     p, q = 0, 0
