@@ -112,6 +112,12 @@ class Bus:
         self.P = p
         self.Q = q
 
+    # Function to refresh values of voltage and angle on buses
+    def refresh(self, v, ang):
+
+        self.theta = ang
+        self.V = v
+
 
 # Flag for WLS or LS state estimator
 wls = True
@@ -301,6 +307,11 @@ G = np.dot(H.T, np.dot(W, H))
 
 # Update State Values
 x += np.linalg.solve(G, np.dot(H.T, np.dot(W, (z-h).T)))
+
+for bus in buses.values():
+    if bus.bustype == 'Vθ':
+        
+    else:
 
 print(x)
 
