@@ -6,15 +6,15 @@ class Line:
     def __init__(self, dataline):
 
         self.origin = int(dataline[0:4].strip())
-        self.destiny = int(dataline[4:12].strip())
+        self.destiny = int(dataline[8:12].strip())
 
-        if dataline[16:23].strip():
-            self.R = float(dataline[16:23])
+        if dataline[17:23].strip():
+            self.R = float(dataline[17:23])/100
         else:
             self.R = 0.
 
         if dataline[23:29].strip():
-            self.X = float(dataline[23:29])
+            self.X = float(dataline[23:29])/100
         else:
             self.X = 0.
 
@@ -24,14 +24,32 @@ class Line:
             self.B = 0.
 
         # Power flowing from origin to destiny and destiny to origin
-        self.S_od = 0
-        self.S_do = 0
+        self.S_od = 0.
+        self.S_do = 0.
 
-        # Measurements of Power
-        self.P_m = 0
-        self.sd_P = 0
-        self.Q_m = 0
-        self.sd_Q = 0
+        # Measurement of active power flowing from origin to destiny bus
+        self.flagPkm = int(dataline[80])
+        if self.flagPkm:
+            self.Pkm_m = float(dataline[81:88])
+            self.sd_Pkm = float(dataline[88:94])
+
+        # Measurement of reactive power flowing from origin to destiny bus
+        self.flagQkm = int(dataline[95])
+        if self.flagQkm:
+            self.Qkm_m = float(dataline[96:103])
+            self.sd_Qkm = float(dataline[103:109])
+
+        # Measurement of active power flowing from destiny to origin bus
+        self.flagPmk = int(dataline[116])
+        if self.flagPmk:
+            self.Pmk_m = float(dataline[117:124])
+            self.sd_Pmk = float(dataline[124:130])
+
+        # Measurement of reactive power flowing from destiny to origin bus
+        self.flagQmk = int(dataline[131])
+        if self.flagQmk:
+            self.Qmk_m = float(dataline[132:139])
+            self.sd_Qmk = float(dataline[139:145])
 
     def add_measure(self, data):
 
@@ -155,9 +173,9 @@ for row in bus_set[15:]:
 lines = dict()
 line_set = datasets[1].split("\n")
 
-for row in line_set:
+for row in line_set[6:]:
     if row.strip():
-        lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
+        lines[row[0:4].strip() + "-" + row[8:12].strip()] = Line(row)
 
 # Add measurements to objects
 for row in data_measures:
