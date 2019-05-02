@@ -69,7 +69,11 @@ class Bus:
         else:
             self.theta = 0.
 
-        self.shunt = float(databus[65:70])
+        # Read value of shunt on bus
+        if databus[65:70].strip():
+            self.shunt = float(databus[65:70])
+        else:
+            self.shunt = 0.
 
         p = []
         q = []
@@ -89,12 +93,23 @@ class Bus:
         self.P = (p[0] - p[1])
         self.Q = (q[0] - q[1])
 
-        self.P_m = 0
-        self.sd_P = 0
-        self.Q_m = 0
-        self.sd_Q = 0
-        self.V_m = 0
-        self.sd_V = 0
+        # Read measurement of active power injected to bus
+        self.flagP = int(databus[80])
+        if self.flagP:
+            self.P_m = float(databus[81:88])
+            self.sd_P = float(databus[88:94])
+
+        # Read measurement of reactive power injected to bus
+        self.flagQ = int(databus[95])
+        if self.flagQ:
+            self.Q_m = float(databus[96:103])
+            self.sd_Q = float(databus[103:109])
+
+        # Read measurement of bus voltage
+        self.flagV = int(databus[110])
+        if self.flagV:
+            self.V_m = float(databus[111:118])/1000
+            self.sd_V = float(databus[118:124])
 
     def add_measure(self, data):
 
@@ -133,9 +148,8 @@ buses = dict()
 bus_set = datasets[0].split('\n')
 
 for row in bus_set[15:]:
-    # if row.strip():
-    #     buses[str(int(row[0:4]))] = Bus(row)
-    print(row[7])
+    if row.strip():
+        buses[str(int(row[0:4]))] = Bus(row)
 
 # Create line objects
 lines = dict()
