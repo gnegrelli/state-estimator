@@ -178,19 +178,19 @@ for row in line_set[6:]:
         lines[row[0:4].strip() + "-" + row[8:12].strip()] = Line(row)
 
 # Add measurements to objects
-for row in data_measures:
-    if row.strip() and row[0] is not '%':
-        if row.split("\t")[1] == '*':
-            buses[row.split("\t")[0]].add_measure(row.split("\t"))
-        else:
-            lines[row.split("\t")[0] + '-' + row.split("\t")[1]].add_measure(row.split("\t"))
+# for row in data_measures:
+#     if row.strip() and row[0] is not '%':
+#         if row.split("\t")[1] == '*':
+#             buses[row.split("\t")[0]].add_measure(row.split("\t"))
+#         else:
+#             lines[row.split("\t")[0] + '-' + row.split("\t")[1]].add_measure(row.split("\t"))
 
 # Flat Start
 for bus in buses.values():
     bus.V = 1
     bus.theta = 0
 
-# Nodal Admitance Matrix
+# Nodal Admittance Matrix
 Ybus = np.zeros((len(buses.keys()), len(buses.keys())), dtype=complex)
 
 # Shunt Elements Vector
@@ -201,12 +201,13 @@ for line in lines.values():
     Bshunt[line.origin - 1] += 1j*line.B/2
     Bshunt[line.destiny - 1] += 1j*line.B/2
 
+Ybus += Ybus.T
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 
 # Tolerance
 tolerance = 0.01
 
-# Maximum absolute value of delta_x will be compared to tolerance. Delta_x is initiated bigger than tolerance
+# Maximum absolute value of delta_x will be compared to tolerance. Delta_x is initiated with value higher than tolerance
 delta_x = np.array([tolerance + 1, tolerance + 1])
 
 # Iteration counter
@@ -284,8 +285,8 @@ while max(abs(delta_x)) > tolerance and counter < 5:
             w_q = np.hstack((w_q, np.array([line.sd_Q])))
             h_q = np.hstack((h_q, np.array([np.imag(line.S_od)])))
 
-            Vk = buses[str(line.origin)].V
-            Vm = buses[str(line.destiny)].V
+            # Vk = buses[str(line.origin)].V
+            # Vm = buses[str(line.destiny)].V
 
             # theta_km =
 
