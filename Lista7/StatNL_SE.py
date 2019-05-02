@@ -58,9 +58,9 @@ class Bus:
 
         bustypes = {'0': 'PQ', '1': 'PV', '2': 'Vθ'}
 
-        self.ID = int(databus[0:4])
-        self.name = databus[8:22]
-        self.bustype = bustypes[databus[4:8].strip()]
+        self.ID = int(databus[:5])
+        self.name = databus[10:20]
+        self.bustype = bustypes[databus[7]]
 
         self.V = float(databus[22:26])/1000
 
@@ -68,6 +68,8 @@ class Bus:
             self.theta = float(databus[26:30])
         else:
             self.theta = 0.
+
+        self.shunt = float(databus[65:70])
 
         p = []
         q = []
@@ -131,8 +133,9 @@ buses = dict()
 bus_set = datasets[0].split('\n')
 
 for row in bus_set[15:]:
-    if row.strip():
-        buses[str(int(row[0:4]))] = Bus(row)
+    # if row.strip():
+    #     buses[str(int(row[0:4]))] = Bus(row)
+    print(row[7])
 
 # Create line objects
 lines = dict()
