@@ -123,14 +123,14 @@ class Bus:
 wls = True
 
 # Importing data
-data_measures = open("Measurements2.txt", "r").read().split("\n")
-datasets = open("System2.txt", "r").read().split("9999\n")
+# data_measures = open("Measurements2.txt", "r").read().split("\n")
+datasets = open("2Barras.txt", "r").read().split("9999\n")
 
 # Create bus objects
 buses = dict()
 bus_set = datasets[0].split('\n')
 
-for row in bus_set:
+for row in bus_set[15:]:
     if row.strip():
         buses[str(int(row[0:4]))] = Bus(row)
 
