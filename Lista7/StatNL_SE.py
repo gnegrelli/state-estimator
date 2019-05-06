@@ -154,8 +154,11 @@ class Bus:
         self.V = v
 
 
-# Flag for WLS or LS state estimator
+# Flag for WLS (True) or LS (False) state estimator
 wls = True
+
+# Flag for Fast Decoupled (True) or Traditional (False) Method
+decoupled = True
 
 # Importing data
 # data_measures = open("Measurements2.txt", "r").read().split("\n")
