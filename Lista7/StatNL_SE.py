@@ -369,6 +369,16 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                         H_q = np.hstack((H_q, buses[str(line.destiny)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
 
     for bus in buses.values():
+
+        neighbour = []
+        for line in lines.values():
+            if line.origin == bus.ID:
+                neighbour.append(line.destiny)
+            elif line.destiny == bus.ID:
+                neighbour.append(line.origin)
+        for item in neighbour:
+            print(item)
+
         if bus.flagP:
             h_p = np.hstack((h_p, np.array([np.real(bus.P)])))
 
@@ -376,7 +386,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                 z_p = np.hstack((z_p, np.array([bus.P_m])))
                 w_p = np.hstack((w_p, np.array([bus.sd_P])))
 
-            # I should calculate del H_p here. I don't want though
+                # I should calculate H_p here. I don't want though
 
         if bus.flagQ:
             h_q = np.hstack((h_q, np.array([np.real(bus.Q)])))
