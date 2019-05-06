@@ -440,6 +440,8 @@ while max(abs(delta_x)) > tolerance and counter < 5:
             if not decoupled or counter == 0:
                 z_v = np.hstack((z_v, np.array([bus.V_m])))
                 w_v = np.hstack((w_v, np.array([bus.sd_V])))
+        else:
+            H_v = np.delete(H_v, bus.ID - 1, 0)
 
     # Assembling submatrices
 
