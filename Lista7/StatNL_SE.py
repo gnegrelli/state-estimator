@@ -162,7 +162,7 @@ decoupled = True
 
 # Importing data
 # data_measures = open("Measurements2.txt", "r").read().split("\n")
-datasets = open("2Barras.txt", "r").read().split("9999\n")
+datasets = open("3Barras.txt", "r").read().split("9999\n")
 
 # Create bus objects
 buses = dict()
@@ -376,8 +376,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                 neighbour.append(line.destiny)
             elif line.destiny == bus.ID:
                 neighbour.append(line.origin)
-        for item in neighbour:
-            print(item)
+        # print(bus.ID, ": ", neighbour)
 
         if bus.flagP:
             h_p = np.hstack((h_p, np.array([np.real(bus.P)])))
@@ -386,7 +385,26 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                 z_p = np.hstack((z_p, np.array([bus.P_m])))
                 w_p = np.hstack((w_p, np.array([bus.sd_P])))
 
-                # I should calculate H_p here. I don't want though
+                # Partial derivatives of Pk on theta
+                for otherbus in buses.values():
+                    if otherbus.bustype != 'Vθ':
+                        if otherbus.ID == bus.ID:
+                            auxp = 0
+                            for n in neighbour:
+                                auxp += bus.V*buses[str(n)].V*(-np.real(Ybus[bus.ID - 1, n - 1])*np.sin(bus.theta - buses[str(n)].theta) + np.imag(Ybus[bus.ID - 1, n - 1])*np.cos(bus.theta - buses[str(n)].theta))
+                            H_p = np.hstack((H_p, auxp))
+                        else:
+                            H_p = np.hstack((H_p, bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(bus.theta - otherbus.theta) - np.imag(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(bus.theta - otherbus.theta))))
+
+                # Partial derivatives of Pk on V
+                for otherbus in buses.values():
+                    if otherbus.ID == bus.ID:
+                        auxp = 2*bus.V*np.real(Ybus[bus.ID - 1, bus.ID - 1])
+                        for n in neighbour:
+                            auxp += buses[str(n)].V*(np.real(Ybus[bus.ID - 1, n - 1])*np.cos(bus.theta - buses[str(n)].theta) + np.imag(Ybus[bus.ID - 1, n - 1])*np.sin(bus.theta - buses[str(n)].theta))
+                        H_p = np.hstack((H_p, auxp))
+                    else:
+                        H_p = np.hstack((H_p, bus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(bus.theta - otherbus.theta) + np.imag(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(bus.theta - otherbus.theta))))
 
         if bus.flagQ:
             h_q = np.hstack((h_q, np.array([np.real(bus.Q)])))
@@ -395,7 +413,26 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                 z_q = np.hstack((z_q, np.array([bus.Q_m])))
                 w_q = np.hstack((w_q, np.array([bus.sd_Q])))
 
-            # I should calculate H_q here. I don't want though
+                # Partial derivatives of Qk on theta
+                for otherbus in buses.values():
+                    if otherbus.bustype != 'Vθ':
+                        if otherbus.ID == bus.ID:
+                            auxq = 0
+                            for n in neighbour:
+                                auxq += bus.V*buses[str(n)].V*(np.real(Ybus[bus.ID - 1, n - 1])*np.cos(bus.theta - buses[str(n)].theta) + np.imag(Ybus[bus.ID - 1, n - 1])*np.sin(bus.theta - buses[str(n)].theta))
+                            H_q = np.hstack((H_q, auxq))
+                        else:
+                            H_q = np.hstack((H_q, -bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(bus.theta - otherbus.theta) - np.imag(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(bus.theta - otherbus.theta))))
+
+                # Partial derivatives of Qk on V
+                for otherbus in buses.values():
+                    if otherbus.ID == bus.ID:
+                        auxq = -2*bus.V*np.imag(Ybus[bus.ID - 1, bus.ID - 1])
+                        for n in neighbour:
+                            auxq += buses[str(n)].V*(np.real(Ybus[bus.ID - 1, n - 1])*np.sin(bus.theta - buses[str(n)].theta) - np.imag(Ybus[bus.ID - 1, n - 1])*np.cos(bus.theta - buses[str(n)].theta))
+                        H_q = np.hstack((H_q, auxq))
+                    else:
+                        H_q = np.hstack((H_q, bus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(bus.theta - otherbus.theta) - np.imag(Ybus[bus.ID - 1, otherbus.ID - 1]) * np.cos(bus.theta - otherbus.theta))))
 
         if bus.flagV:
             h_v = np.hstack((h_v, np.array([bus.V])))
