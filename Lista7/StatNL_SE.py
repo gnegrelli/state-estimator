@@ -358,18 +358,19 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                     H_q = np.hstack((H_q, buses[str(line.destiny)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
 
     for bus in buses.values():
-        if bus.P_m is not 0 and bus.Q_m is not 0:
+        if bus.flagP:
             z_p = np.hstack((z_p, np.array([bus.P_m])))
             w_p = np.hstack((w_p, np.array([bus.sd_P])))
             h_p = np.hstack((h_p, np.array([np.real(bus.P)])))
 
+        if bus.flagQ:
             z_q = np.hstack((z_q, np.array([bus.Q_m])))
             w_q = np.hstack((w_q, np.array([bus.sd_Q])))
             h_q = np.hstack((h_q, np.array([np.real(bus.Q)])))
 
             # I should calculate H_p and H_q here. I don't want though
 
-        if bus.V_m is not 0:
+        if bus.flagV:
             z_v = np.hstack((z_v, np.array([bus.V_m])))
             w_v = np.hstack((w_v, np.array([bus.sd_V])))
             h_v = np.hstack((h_v, np.array([bus.V])))
