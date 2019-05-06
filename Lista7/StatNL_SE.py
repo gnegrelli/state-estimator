@@ -280,118 +280,135 @@ while max(abs(delta_x)) > tolerance and counter < 5:
 
     for line in lines.values():
         if line.flagPkm:
-            z_p = np.hstack((z_p, np.array([line.Pkm_m])))
-            w_p = np.hstack((w_p, np.array([line.sd_Pkm])))
             h_p = np.hstack((h_p, np.array([np.real(line.S_od)])))
 
-            # Partial derivatives of Pkm on theta
-            for bus in buses.values():
-                if bus.bustype != 'Vθ':
-                    if bus.ID == line.origin:
-                        H_p = np.hstack((H_p, buses[str(line.origin)].V*buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) - np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
-                    else:
-                        H_p = np.hstack((H_p, buses[str(line.origin)].V*buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+            if not decoupled or counter == 0:
+                z_p = np.hstack((z_p, np.array([line.Pkm_m])))
+                w_p = np.hstack((w_p, np.array([line.sd_Pkm])))
 
-            # Partial derivatives of Pkm on V
-            for bus in buses.values():
-                if bus.ID == line.origin:
-                    H_p = np.hstack((H_p, 2*buses[str(line.origin)].V*np.real(Ybus[line.origin - 1, line.destiny - 1]) - buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
-                else:
-                    H_p = np.hstack((H_p, -buses[str(line.origin)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+                # Partial derivatives of Pkm on theta
+                for bus in buses.values():
+                    if bus.bustype != 'Vθ':
+                        if bus.ID == line.origin:
+                            H_p = np.hstack((H_p, buses[str(line.origin)].V*buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) - np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+                        else:
+                            H_p = np.hstack((H_p, buses[str(line.origin)].V*buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+
+                # Partial derivatives of Pkm on V
+                for bus in buses.values():
+                    if bus.ID == line.origin:
+                        H_p = np.hstack((H_p, 2*buses[str(line.origin)].V*np.real(Ybus[line.origin - 1, line.destiny - 1]) - buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+                    else:
+                        H_p = np.hstack((H_p, -buses[str(line.origin)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
 
         if line.flagQkm:
-            z_q = np.hstack((z_q, np.array([line.Qkm_m])))
-            w_q = np.hstack((w_q, np.array([line.sd_Qkm])))
             h_q = np.hstack((h_q, np.array([np.imag(line.S_od)])))
 
-            # Partial derivatives of Qkm on theta
-            for bus in buses.values():
-                if bus.bustype != 'Vθ':
+            if not decoupled or counter == 0:
+                z_q = np.hstack((z_q, np.array([line.Qkm_m])))
+                w_q = np.hstack((w_q, np.array([line.sd_Qkm])))
+
+                # Partial derivatives of Qkm on theta
+                for bus in buses.values():
+                    if bus.bustype != 'Vθ':
+                        if bus.ID == line.origin:
+                            H_q = np.hstack((H_q, buses[str(line.origin)].V*buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) - np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+                        else:
+                            H_q = np.hstack((H_q, buses[str(line.origin)].V*buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+
+                # Partial derivatives of Qkm on V
+                for bus in buses.values():
                     if bus.ID == line.origin:
-                        H_q = np.hstack((H_q, buses[str(line.origin)].V*buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) - np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+                        H_q = np.hstack((H_q, -2*buses[str(line.origin)].V*(np.imag(Ybus[line.origin - 1, line.destiny - 1]) + line.B/2) + buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+
                     else:
-                        H_q = np.hstack((H_q, buses[str(line.origin)].V*buses[str(line.destiny)].V*(np.real(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
-
-            # Partial derivatives of Qkm on V
-            for bus in buses.values():
-                if bus.ID == line.origin:
-                    H_q = np.hstack((H_q, -2*buses[str(line.origin)].V*(np.imag(Ybus[line.origin - 1, line.destiny - 1]) + line.B/2) + buses[str(line.destiny)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
-
-                else:
-                    H_q = np.hstack((H_q, buses[str(line.origin)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
+                        H_q = np.hstack((H_q, buses[str(line.origin)].V*(-np.real(Ybus[line.origin - 1, line.destiny - 1])*np.sin(buses[str(line.origin)].theta - buses[str(line.destiny)].theta) + np.imag(Ybus[line.origin - 1, line.destiny - 1])*np.cos(buses[str(line.origin)].theta - buses[str(line.destiny)].theta))))
 
         if line.flagPmk:
-            z_p = np.hstack((z_p, np.array([line.Pmk_m])))
-            w_p = np.hstack((w_p, np.array([line.sd_Pmk])))
             h_p = np.hstack((h_p, np.array([np.real(line.S_do)])))
 
-            # Partial derivatives of Pmk on theta
-            for bus in buses.values():
-                if bus.bustype != 'Vθ':
-                    if bus.ID == line.destiny:
-                        H_p = np.hstack((H_p, buses[str(line.destiny)].V*buses[str(line.origin)].V*(np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) - np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
-                    else:
-                        H_p = np.hstack((H_p, buses[str(line.destiny)].V*buses[str(line.origin)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+            if not decoupled or counter == 0:
+                z_p = np.hstack((z_p, np.array([line.Pmk_m])))
+                w_p = np.hstack((w_p, np.array([line.sd_Pmk])))
 
-            # Partial derivatives of Pmk on V
-            for bus in buses.values():
-                if bus.ID == line.destiny:
-                    H_p = np.hstack((H_p, 2*buses[str(line.destiny)].V*np.real(Ybus[line.destiny - 1, line.origin - 1]) - buses[str(line.origin)].V*(np.real(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
-                else:
-                    H_p = np.hstack((H_p, -buses[str(line.destiny)].V*(np.real(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+                # Partial derivatives of Pmk on theta
+                for bus in buses.values():
+                    if bus.bustype != 'Vθ':
+                        if bus.ID == line.destiny:
+                            H_p = np.hstack((H_p, buses[str(line.destiny)].V*buses[str(line.origin)].V*(np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) - np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+                        else:
+                            H_p = np.hstack((H_p, buses[str(line.destiny)].V*buses[str(line.origin)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+
+                # Partial derivatives of Pmk on V
+                for bus in buses.values():
+                    if bus.ID == line.destiny:
+                        H_p = np.hstack((H_p, 2*buses[str(line.destiny)].V*np.real(Ybus[line.destiny - 1, line.origin - 1]) - buses[str(line.origin)].V*(np.real(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+                    else:
+                        H_p = np.hstack((H_p, -buses[str(line.destiny)].V*(np.real(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
 
         if line.flagQmk:
-            z_q = np.hstack((z_q, np.array([line.Qmk_m])))
-            w_q = np.hstack((w_q, np.array([line.sd_Qmk])))
             h_q = np.hstack((h_q, np.array([np.imag(line.S_do)])))
 
-            # Partial derivatives of Qmk on theta
-            for bus in buses.values():
-                if bus.bustype != 'Vθ':
-                    if bus.ID == line.destiny:
-                        H_q = np.hstack((H_q, buses[str(line.destiny)].V*buses[str(line.origin)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) - np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
-                    else:
-                        H_q = np.hstack((H_q, buses[str(line.destiny)].V*buses[str(line.origin)].V*(np.real(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+            if not decoupled or counter == 0:
+                z_q = np.hstack((z_q, np.array([line.Qmk_m])))
+                w_q = np.hstack((w_q, np.array([line.sd_Qmk])))
 
-            # Partial derivatives of Qmk on V
-            for bus in buses.values():
-                if bus.ID == line.destiny:
-                    H_q = np.hstack((H_q, -2*buses[str(line.destiny)].V*(np.imag(Ybus[line.destiny - 1, line.origin - 1]) + line.B/2) + buses[str(line.origin)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
-                else:
-                    H_q = np.hstack((H_q, buses[str(line.destiny)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+                # Partial derivatives of Qmk on theta
+                for bus in buses.values():
+                    if bus.bustype != 'Vθ':
+                        if bus.ID == line.destiny:
+                            H_q = np.hstack((H_q, buses[str(line.destiny)].V*buses[str(line.origin)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) - np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+                        else:
+                            H_q = np.hstack((H_q, buses[str(line.destiny)].V*buses[str(line.origin)].V*(np.real(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+
+                # Partial derivatives of Qmk on V
+                for bus in buses.values():
+                    if bus.ID == line.destiny:
+                        H_q = np.hstack((H_q, -2*buses[str(line.destiny)].V*(np.imag(Ybus[line.destiny - 1, line.origin - 1]) + line.B/2) + buses[str(line.origin)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
+                    else:
+                        H_q = np.hstack((H_q, buses[str(line.destiny)].V*(-np.real(Ybus[line.destiny - 1, line.origin - 1])*np.sin(buses[str(line.destiny)].theta - buses[str(line.origin)].theta) + np.imag(Ybus[line.destiny - 1, line.origin - 1])*np.cos(buses[str(line.destiny)].theta - buses[str(line.origin)].theta))))
 
     for bus in buses.values():
         if bus.flagP:
-            z_p = np.hstack((z_p, np.array([bus.P_m])))
-            w_p = np.hstack((w_p, np.array([bus.sd_P])))
             h_p = np.hstack((h_p, np.array([np.real(bus.P)])))
 
+            if not decoupled or counter == 0:
+                z_p = np.hstack((z_p, np.array([bus.P_m])))
+                w_p = np.hstack((w_p, np.array([bus.sd_P])))
+
+            # I should calculate del H_p here. I don't want though
+
         if bus.flagQ:
-            z_q = np.hstack((z_q, np.array([bus.Q_m])))
-            w_q = np.hstack((w_q, np.array([bus.sd_Q])))
             h_q = np.hstack((h_q, np.array([np.real(bus.Q)])))
 
-            # I should calculate H_p and H_q here. I don't want though
+            if not decoupled or counter == 0:
+                z_q = np.hstack((z_q, np.array([bus.Q_m])))
+                w_q = np.hstack((w_q, np.array([bus.sd_Q])))
+
+            # I should calculate H_q here. I don't want though
 
         if bus.flagV:
-            z_v = np.hstack((z_v, np.array([bus.V_m])))
-            w_v = np.hstack((w_v, np.array([bus.sd_V])))
             h_v = np.hstack((h_v, np.array([bus.V])))
 
-    # Assembling submatrices
+            if not decoupled or counter == 0:
+                z_v = np.hstack((z_v, np.array([bus.V_m])))
+                w_v = np.hstack((w_v, np.array([bus.sd_V])))
 
-    # Measurements vector
-    z = np.hstack((z_p, z_q, z_v))
+    # Assembling submatrices
 
     # Calculated values of measurements
     h = np.hstack((h_p, h_q, h_v))
 
-    # Covariance Matrix
-    W = np.zeros((len(z), len(z)))
-    np.fill_diagonal(W, np.hstack((w_p, w_q, w_v)))
+    if not decoupled or counter == 0:
+        # Measurements vector
+        z = np.hstack((z_p, z_q, z_v))
 
-    # Jacobian Matrix
-    H = np.hstack((H_p, H_q, H_v.flatten())).reshape((len(z), 2*len(buses)-1))
+        # Covariance Matrix
+        W = np.zeros((len(z), len(z)))
+        np.fill_diagonal(W, np.hstack((w_p, w_q, w_v)))
+
+        # Jacobian Matrix
+        H = np.hstack((H_p, H_q, H_v.flatten())).reshape((len(z), 2*len(buses)-1))
 
     # Submatrices of states
     x_theta = np.array([])
@@ -427,4 +444,4 @@ print("\n" + 30*"@" + "\n")
 print("Final States")
 
 for bus in buses.values():
-    print("V%d: %.6f < %.4f"% (bus.ID, bus.V, bus.theta))
+    print("V%d: %.6f < %.4f" % (bus.ID, bus.V, bus.theta))
