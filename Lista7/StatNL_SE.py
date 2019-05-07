@@ -294,7 +294,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
 
             if not decoupled or counter == 0:
                 z_p = np.hstack((z_p, np.array([line.Pkm_m])))
-                w_p = np.hstack((w_p, np.array([line.sd_Pkm])))
+                w_p = np.hstack((w_p, np.array([line.sd_Pkm**-2])))
 
                 # Partial derivatives of Pkm on theta
                 for bus in buses.values():
@@ -325,7 +325,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
 
             if not decoupled or counter == 0:
                 z_q = np.hstack((z_q, np.array([line.Qkm_m])))
-                w_q = np.hstack((w_q, np.array([line.sd_Qkm])))
+                w_q = np.hstack((w_q, np.array([line.sd_Qkm**-2])))
 
                 # Partial derivatives of Qkm on theta
                 for bus in buses.values():
@@ -355,7 +355,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
 
             if not decoupled or counter == 0:
                 z_p = np.hstack((z_p, np.array([line.Pmk_m])))
-                w_p = np.hstack((w_p, np.array([line.sd_Pmk])))
+                w_p = np.hstack((w_p, np.array([line.sd_Pmk**-2])))
 
                 # Partial derivatives of Pmk on theta
                 for bus in buses.values():
@@ -385,7 +385,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
 
             if not decoupled or counter == 0:
                 z_q = np.hstack((z_q, np.array([line.Qmk_m])))
-                w_q = np.hstack((w_q, np.array([line.sd_Qmk])))
+                w_q = np.hstack((w_q, np.array([line.sd_Qmk**-2])))
 
                 # Partial derivatives of Qmk on theta
                 for bus in buses.values():
@@ -425,7 +425,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
 
             if not decoupled or counter == 0:
                 z_p = np.hstack((z_p, np.array([bus.P_m])))
-                w_p = np.hstack((w_p, np.array([bus.sd_P])))
+                w_p = np.hstack((w_p, np.array([bus.sd_P**-2])))
 
                 # Partial derivatives of Pk on theta
                 for otherbus in buses.values():
@@ -453,7 +453,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
 
             if not decoupled or counter == 0:
                 z_q = np.hstack((z_q, np.array([bus.Q_m])))
-                w_q = np.hstack((w_q, np.array([bus.sd_Q])))
+                w_q = np.hstack((w_q, np.array([bus.sd_Q**-2])))
 
                 # Partial derivatives of Qk on theta
                 for otherbus in buses.values():
@@ -481,7 +481,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
 
             if not decoupled or counter == 0:
                 z_v = np.hstack((z_v, np.array([bus.V_m])))
-                w_v = np.hstack((w_v, np.array([bus.sd_V])))
+                w_v = np.hstack((w_v, np.array([bus.sd_V**-2])))
         else:
             H_v = np.delete(H_v, bus.ID - 1, 0)
 
@@ -500,8 +500,6 @@ while max(abs(delta_x)) > tolerance and counter < 5:
 
         # Jacobian Matrix
         H = np.hstack((H_p, H_q, H_v.flatten())).reshape((len(z), 2*len(buses)-1))
-        print(H)
-        print(W)
 
     # Submatrices of states
     x_theta = np.array([])
