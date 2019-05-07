@@ -281,6 +281,12 @@ while max(abs(delta_x)) > tolerance and counter < 5:
     for line in lines.values():
 
         Vk = buses[str(line.origin)].V
+        Vm = buses[str(line.destiny)].V
+        gkm = -np.real(Ybus[line.origin - 1, line.destiny - 1])
+        bkm = -np.imag(Ybus[line.origin - 1, line.destiny - 1])
+        bsh = line.B
+        theta_km = buses[str(line.origin)].theta - buses[str(line.destiny)].theta
+        theta_mk = -theta_km
         ak = 1
 
         if line.flagPkm:
@@ -295,34 +301,24 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                     if bus.bustype != 'Vθ':
 
                         if bus.ID == line.origin:
-                            Vm = buses[str(line.destiny)].V
-                            theta_km = buses[str(line.origin)].theta - buses[str(line.destiny)].theta
-                            gkm = -np.real(Ybus[line.origin - 1, line.destiny - 1])
-                            bkm = -np.imag(Ybus[line.origin - 1, line.destiny - 1])
                             H_p = np.hstack((H_p, ak*Vk*Vm*(gkm*np.sin(theta_km) - bkm*np.cos(theta_km))))
 
-                        else:
-                            Vm = bus.V
-                            theta_km = buses[str(line.origin)].theta - bus.theta
-                            gkm = -np.real(Ybus[line.origin - 1, bus.ID - 1])
-                            bkm = -np.imag(Ybus[line.origin - 1, bus.ID - 1])
+                        elif bus.ID == line.destiny:
                             H_p = np.hstack((H_p, ak*Vk*Vm*(-gkm*np.sin(theta_km) + bkm*np.cos(theta_km))))
+
+                        else:
+                            H_p = np.hstack((H_p, 0))
 
                 # Partial derivatives of Pkm on V
                 for bus in buses.values():
                     if bus.ID == line.origin:
-                        Vm = buses[str(line.destiny)].V
-                        theta_km = buses[str(line.origin)].theta - buses[str(line.destiny)].theta
-                        gkm = -np.real(Ybus[line.origin - 1, line.destiny - 1])
-                        bkm = -np.imag(Ybus[line.origin - 1, line.destiny - 1])
                         H_p = np.hstack((H_p, 2*(ak**2)*Vk*gkm - ak*Vm*(gkm*np.cos(theta_km) + bkm*np.sin(theta_km))))
 
-                    else:
-                        Vm = bus.V
-                        theta_km = buses[str(line.origin)].theta - bus.theta
-                        gkm = -np.real(Ybus[line.origin - 1, bus.ID - 1])
-                        bkm = -np.imag(Ybus[line.origin - 1, bus.ID - 1])
+                    elif bus.ID == line.destiny:
                         H_p = np.hstack((H_p, -ak*Vk*(gkm*np.cos(theta_km) + bkm*np.sin(theta_km))))
+
+                    else:
+                        H_p = np.hstack((H_p, 0))
 
         if line.flagQkm:
             h_q = np.hstack((h_q, np.array([np.imag(line.S_od)])))
@@ -335,35 +331,24 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                 for bus in buses.values():
                     if bus.bustype != 'Vθ':
                         if bus.ID == line.origin:
-                            Vm = buses[str(line.destiny)].V
-                            theta_km = buses[str(line.origin)].theta - buses[str(line.destiny)].theta
-                            gkm = -np.real(Ybus[line.origin - 1, line.destiny - 1])
-                            bkm = -np.imag(Ybus[line.origin - 1, line.destiny - 1])
                             H_q = np.hstack((H_q, -ak*Vk*Vm*(gkm*np.cos(theta_km) + bkm*np.sin(theta_km))))
 
-                        else:
-                            Vm = bus.V
-                            theta_km = buses[str(line.origin)].theta - bus.theta
-                            gkm = -np.real(Ybus[line.origin - 1, bus.ID - 1])
-                            bkm = -np.imag(Ybus[line.origin - 1, bus.ID - 1])
+                        elif bus.ID == line.destiny:
                             H_q = np.hstack((H_q, ak*Vk*Vm*(gkm*np.cos(theta_km) + bkm*np.sin(theta_km))))
+
+                        else:
+                            H_q = np.hstack((H_q, 0))
 
                 # Partial derivatives of Qkm on V
                 for bus in buses.values():
                     if bus.ID == line.origin:
-                        Vm = buses[str(line.destiny)].V
-                        theta_km = buses[str(line.origin)].theta - buses[str(line.destiny)].theta
-                        gkm = -np.real(Ybus[line.origin - 1, line.destiny - 1])
-                        bkm = -np.imag(Ybus[line.origin - 1, line.destiny - 1])
-                        bsh = line.B
                         H_q = np.hstack((H_q, -2*(ak**2)*Vk*(bkm + bsh) + ak*Vm*(-gkm*np.sin(theta_km) + bkm*np.cos(theta_km))))
 
-                    else:
-                        Vm = bus.V
-                        theta_km = buses[str(line.origin)].theta - bus.theta
-                        gkm = -np.real(Ybus[line.origin - 1, bus.ID - 1])
-                        bkm = -np.imag(Ybus[line.origin - 1, bus.ID - 1])
+                    elif bus.ID == line.destiny:
                         H_q = np.hstack((H_q, ak*Vk*(-gkm*np.sin(theta_km) + bkm*np.cos(theta_km))))
+
+                    else:
+                        H_q = np.hstack((H_q, 0))
 
         if line.flagPmk:
             h_p = np.hstack((h_p, np.array([np.real(line.S_do)])))
@@ -376,34 +361,24 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                 for bus in buses.values():
                     if bus.bustype != 'Vθ':
                         if bus.ID == line.destiny:
-                            Vm = buses[str(line.destiny)].V
-                            theta_mk = buses[str(line.destiny)].theta - buses[str(line.origin)].theta
-                            gkm = -np.real(Ybus[line.origin - 1, line.destiny - 1])
-                            bkm = -np.imag(Ybus[line.origin - 1, line.destiny - 1])
                             H_p = np.hstack((H_p, ak*Vk*Vm*(gkm*np.sin(theta_mk) - bkm*np.cos(theta_mk))))
 
-                        else:
-                            Vm = bus.V
-                            theta_mk = bus.theta - buses[str(line.origin)].theta
-                            gkm = -np.real(Ybus[line.origin - 1, bus.ID - 1])
-                            bkm = -np.imag(Ybus[line.origin - 1, bus.ID - 1])
+                        elif bus.ID == line.origin:
                             H_p = np.hstack((H_p, ak*Vk*Vm*(-gkm*np.sin(theta_mk) + bkm*np.cos(theta_mk))))
+
+                        else:
+                            H_p = np.hstack((H_p, 0))
 
                 # Partial derivatives of Pmk on V
                 for bus in buses.values():
                     if bus.ID == line.destiny:
-                        Vm = buses[str(line.destiny)].V
-                        theta_mk = buses[str(line.destiny)].theta - buses[str(line.origin)].theta
-                        gkm = -np.real(Ybus[line.origin - 1, line.destiny - 1])
-                        bkm = -np.imag(Ybus[line.origin - 1, line.destiny - 1])
                         H_p = np.hstack((H_p, 2*Vm*gkm - ak*Vk*(gkm*np.cos(theta_mk) + bkm*np.sin(theta_mk))))
 
-                    else:
-                        Vm = bus.V
-                        theta_mk = bus.theta - buses[str(line.origin)].theta
-                        gkm = -np.real(Ybus[line.origin - 1, bus.ID - 1])
-                        bkm = -np.imag(Ybus[line.origin - 1, bus.ID - 1])
+                    elif bus.ID == line.origin:
                         H_p = np.hstack((H_p, -ak*Vm*(gkm*np.cos(theta_mk) + bkm*np.sin(theta_mk))))
+
+                    else:
+                        H_p = np.hstack((H_p, 0))
 
         if line.flagQmk:
             h_q = np.hstack((h_q, np.array([np.imag(line.S_do)])))
@@ -416,35 +391,24 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                 for bus in buses.values():
                     if bus.bustype != 'Vθ':
                         if bus.ID == line.destiny:
-                            Vm = buses[str(line.destiny)].V
-                            theta_mk = buses[str(line.destiny)].theta - buses[str(line.origin)].theta
-                            gkm = -np.real(Ybus[line.origin - 1, line.destiny - 1])
-                            bkm = -np.imag(Ybus[line.origin - 1, line.destiny - 1])
                             H_q = np.hstack((H_q, -ak*Vk*Vm*(gkm*np.cos(theta_mk) + bkm*np.sin(theta_mk))))
 
-                        else:
-                            Vm = bus.V
-                            theta_mk = bus.theta - buses[str(line.origin)].theta
-                            gkm = -np.real(Ybus[line.origin - 1, bus.ID - 1])
-                            bkm = -np.imag(Ybus[line.origin - 1, bus.ID - 1])
+                        elif bus.ID == line.origin:
                             H_q = np.hstack((H_q, ak*Vk*Vm*(gkm*np.cos(theta_mk) + bkm*np.sin(theta_mk))))
+
+                        else:
+                            H_q = np.hstack((H_q, 0))
 
                 # Partial derivatives of Qmk on V
                 for bus in buses.values():
                     if bus.ID == line.destiny:
-                        Vm = buses[str(line.destiny)].V
-                        theta_mk = buses[str(line.destiny)].theta - buses[str(line.origin)].theta
-                        gkm = -np.real(Ybus[line.origin - 1, line.destiny - 1])
-                        bkm = -np.imag(Ybus[line.origin - 1, line.destiny - 1])
-                        bsh = line.B
                         H_q = np.hstack((H_q, -2*Vm*(bkm + bsh) + ak*Vk*(-gkm*np.sin(theta_mk) + bkm*np.cos(theta_mk))))
 
-                    else:
-                        Vm = bus.V
-                        theta_mk = bus.theta - buses[str(line.origin)].theta
-                        gkm = -np.real(Ybus[line.origin - 1, bus.ID - 1])
-                        bkm = -np.imag(Ybus[line.origin - 1, bus.ID - 1])
+                    elif bus.ID == line.origin:
                         H_q = np.hstack((H_q, ak*Vm*(-gkm*np.sin(theta_mk) + bkm*np.cos(theta_mk))))
+
+                    else:
+                        H_q = np.hstack((H_q, 0))
 
     for bus in buses.values():
 
@@ -537,6 +501,7 @@ while max(abs(delta_x)) > tolerance and counter < 5:
         # Jacobian Matrix
         H = np.hstack((H_p, H_q, H_v.flatten())).reshape((len(z), 2*len(buses)-1))
         print(H)
+        print(W)
 
     # Submatrices of states
     x_theta = np.array([])
