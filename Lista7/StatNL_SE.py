@@ -201,8 +201,8 @@ Bshunt = np.zeros(len(buses), dtype=complex)
 
 for line in lines.values():
     Ybus[line.origin - 1][line.destiny - 1] = -1/(line.R + 1j*line.X)
-    Bshunt[line.origin - 1] += 1j*line.B/2
-    Bshunt[line.destiny - 1] += 1j*line.B/2
+    Bshunt[line.origin - 1] += 1j*line.B
+    Bshunt[line.destiny - 1] += 1j*line.B
 
 Ybus += Ybus.T
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
@@ -246,15 +246,15 @@ while max(abs(delta_x)) > tolerance and counter < 5:
         Vk = buses[str(line.origin)].V
         Vm = buses[str(line.destiny)].V
 
-        Y = Ybus[line.origin - 1, line.destiny - 1]
+        Y = -Ybus[line.origin - 1, line.destiny - 1]
 
         pkm = (Vk**2)*np.real(Y) - Vk*Vm*(np.real(Y)*np.cos(theta_km) + np.imag(Y)*np.sin(theta_km))
-        qkm = -(Vk**2)*(np.imag(Y) + line.B/2) - Vk*Vm*(np.real(Y)*np.sin(theta_km) - np.imag(Y)*np.cos(theta_km))
+        qkm = -(Vk**2)*(np.imag(Y) + line.B) - Vk*Vm*(np.real(Y)*np.sin(theta_km) - np.imag(Y)*np.cos(theta_km))
 
         line.save_flow(pkm, qkm, line.origin)
 
         pmk = (Vm**2)*np.real(Y) - Vm*Vk*(np.real(Y)*np.cos(-theta_km) + np.imag(Y)*np.sin(-theta_km))
-        qmk = -(Vm**2)*(np.imag(Y) + line.B/2) - Vk*Vm*(np.real(Y)*np.sin(-theta_km) - np.imag(Y)*np.cos(-theta_km))
+        qmk = -(Vm**2)*(np.imag(Y) + line.B) - Vk*Vm*(np.real(Y)*np.sin(-theta_km) - np.imag(Y)*np.cos(-theta_km))
 
         line.save_flow(pmk, qmk, line.destiny)
 
