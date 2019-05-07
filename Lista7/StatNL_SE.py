@@ -51,15 +51,6 @@ class Line:
             self.Qmk_m = float(dataline[132:139])
             self.sd_Qmk = float(dataline[139:145])
 
-    def add_measure(self, data):
-
-        if not self.P_m:
-            self.P_m = float(data[2])
-            self.sd_P = float(data[3])
-        else:
-            self.Q_m = float(data[2])
-            self.sd_Q = float(data[3])
-
     # Function to save values of power flowing through line
     def save_flow(self, p, q, bus_origin):
         if bus_origin == self.origin:
@@ -129,18 +120,6 @@ class Bus:
             self.V_m = float(databus[111:118])/1000
             self.sd_V = float(databus[118:124])
 
-    def add_measure(self, data):
-
-        if data[4] == 'd':
-            self.V_m = float(data[2])
-            self.sd_V = float(data[3])
-        elif not self.P:
-            self.P_m = float(data[2])
-            self.sd_P = float(data[3])
-        else:
-            self.Q_m = float(data[2])
-            self.sd_Q = float(data[3])
-
     # Function to save values of power
     def save_power(self, p, q):
 
@@ -179,14 +158,6 @@ line_set = datasets[1].split("\n")
 for row in line_set[6:]:
     if row.strip():
         lines[row[0:4].strip() + "-" + row[8:12].strip()] = Line(row)
-
-# Add measurements to objects
-# for row in data_measures:
-#     if row.strip() and row[0] is not '%':
-#         if row.split("\t")[1] == '*':
-#             buses[row.split("\t")[0]].add_measure(row.split("\t"))
-#         else:
-#             lines[row.split("\t")[0] + '-' + row.split("\t")[1]].add_measure(row.split("\t"))
 
 # Flat Start
 for bus in buses.values():
@@ -418,7 +389,6 @@ while max(abs(delta_x)) > tolerance and counter < 5:
                 neighbour.append(line.destiny)
             elif line.destiny == bus.ID:
                 neighbour.append(line.origin)
-        # print(bus.ID, ": ", neighbour)
 
         if bus.flagP:
             h_p = np.hstack((h_p, np.array([np.real(bus.P)])))
