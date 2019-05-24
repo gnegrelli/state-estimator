@@ -19,6 +19,10 @@ H = H.T
 
 for i in range(H.shape[0] - 1):
     if H[i, i] == 0:
+        if not H[i].any():
+            zeros = np.zeros((H.shape[0], 1))
+            zeros[i] = 1
+            H = np.hstack((H, zeros))
         col = np.where(H[i] != 0)[0][0]
         aux = H[:, i]
         H[:, i] = H[:, col]
@@ -28,6 +32,5 @@ for i in range(H.shape[0] - 1):
     for j in range(i + 1, H.shape[0]):
 
         H[j] = -H[j, i]/H[i, i]*H[i] + H[j]
-
 
 print(H)
