@@ -61,9 +61,6 @@ for i in range(H.shape[0] - 1):
                 add_col[j] = np.dot(np.hstack((factors, add_col))[j], add_col)
             H = np.hstack((H, add_col))
 
-        # if not np.where(H[i] != 0)[0].size:
-        #     print("TRETA")
-
         # Swap columns and continue decomposition
         try:
             col = np.where(H[i] != 0)[0][0]
@@ -82,4 +79,12 @@ for i in range(H.shape[0] - 1):
 
 print(H)
 print(factors)
-# print(pseudomeas)
+
+# Backward processing
+for i in range(H.shape[0] - 2, 0, -1):
+    for j in range(i - 1, -1, -1):
+        factors[j, i] = -H[j, i]/H[i, i]
+        H[j] = -H[j, i]/H[i, i]*H[i] + H[j]
+
+print(H)
+print(factors)
