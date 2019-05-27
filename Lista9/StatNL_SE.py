@@ -141,7 +141,7 @@ decoupled = not True
 
 # Importing data
 # data_measures = open("Measurements2.txt", "r").read().split("\n")
-datasets = open("3Barras2.txt", "r").read().split("9999\n")
+datasets = open("3Barras23.txt", "r").read().split("9999\n")
 
 # Create bus objects
 buses = dict()
@@ -806,3 +806,13 @@ for item in r_n:
         print('\033[31m' + "%.5f" % item[0] + '\033[0m')
     else:
         print("%.5f" % item[0])
+
+K = np.dot(H, np.linalg.solve(G, np.dot(H.T, W)))
+UI = np.sqrt(np.diag(K)/(1 - np.diag(K)))
+
+print("\nUI:")
+for ui in UI:
+    print("%.5f" % ui)
+
+
+
