@@ -1,9 +1,9 @@
 import numpy as np
 
-H = np.array([[1, 0, -1, 0, 0],
-              [-1, 0, 1, 0, 0],
-              [2, -1, -1, 0, 0],
-              [0, -1, -1, 3, -1]], dtype=float)
+# H = np.array([[1, 0, -1, 0, 0],
+#               [-1, 0, 1, 0, 0],
+#               [2, -1, -1, 0, 0],
+#               [0, -1, -1, 3, -1]], dtype=float)
 
 # H = np.array([[1, -1, 0, 0, 0, 0],
 #               [1, 0, -1, 0, 0, 0],
@@ -15,15 +15,15 @@ H = np.array([[1, 0, -1, 0, 0],
 #               [0, 0, 0, -1, 1, 0],
 #               [0, 0, 0, -1, 0, 1]], dtype=float)
 
-H = np.array([[1, -1, 0, 0, 0, 0],
-              [0, 1, -1, 0, 0, 0],
-              [0, 0, 0, 1, -1, 0],
-              [0, 0, 0, -1, 1, 0],
-              [0, 0, 0, 1, 0, -1],
-              [2, -1, -1, 0, 0, 0],
-              [-1, -1, 3, -1, 0, 0],
-              [0, 0, 0, -1, 1, 0],
-              [0, 0, 0, -1, 0, 1]], dtype=float)
+# H = np.array([[1, -1, 0, 0, 0, 0],
+#               [0, 1, -1, 0, 0, 0],
+#               [0, 0, 0, 1, -1, 0],
+#               [0, 0, 0, -1, 1, 0],
+#               [0, 0, 0, 1, 0, -1],
+#               [2, -1, -1, 0, 0, 0],
+#               [-1, -1, 3, -1, 0, 0],
+#               [0, 0, 0, -1, 1, 0],
+#               [0, 0, 0, -1, 0, 1]], dtype=float)
 
 # H = np.array([[5, -3, -2, 0, 0, 0],
 #               [-3, 2, 1, 0, 0, 0],
@@ -32,12 +32,25 @@ H = np.array([[1, -1, 0, 0, 0, 0],
 #               [0, 0, 1, -4, 2, 1],
 #               [0, 0, 1, -3, 1, 1]], dtype=float)
 
+H = np.array([[0, 1, -1, 0, 0],
+              [0, -1, 1, 0, 0],
+              [0, 0, 1, -1, 0],
+              [0, 0, -1, 1, 0],
+              [0, 1, 0, -1, 0],
+              [0, -1, 0, 1, 0],
+              [0, 1, 0, 0, -1],
+              [-1, 4, -1, -1, -1],
+              [0, -1, -1, 3, -1]], dtype=float)
+
 H = H.T
+
+# Nametag list
+measures = ["P23", "P32", "P34", "P43", "P24", "P42", "P25", "P2", "P4"]
 
 factors = np.zeros((H.shape[0], H.shape[0] - 1))
 
 # List of pseudomeasurements
-pseudomeas = [np.array([[1, -1, 0, 0, 0]]).T, np.array([[0, 0, 1, -1, 0]]).T, np.array([[-1, -1, 3, -1, 0]]).T]
+# pseudomeas = [np.array([[1, -1, 0, 0, 0]]).T, np.array([[0, 0, 1, -1, 0]]).T, np.array([[-1, -1, 3, -1, 0]]).T]
 added_meas = 0
 
 # pseudomeas = [np.array([[-1, -1, 3, -1, 0, 0]]).T]
@@ -70,6 +83,11 @@ for i in range(H.shape[0] - 1):
         H[:, i] = H[:, col]
         H[:, col] = aux
 
+        # Swap columns on nametag list
+        aux = measures[i]
+        measures[i] = measures[col]
+        measures[col] = aux
+
     factors[i, i] = 1/H[i, i]
     H[i] = H[i]/H[i, i]
 
@@ -77,14 +95,12 @@ for i in range(H.shape[0] - 1):
         factors[j, i] = -H[j, i]/H[i, i]
         H[j] = -H[j, i]/H[i, i]*H[i] + H[j]
 
-print(H)
-print(factors)
-
 # Backward processing
 for i in range(H.shape[0] - 2, 0, -1):
     for j in range(i - 1, -1, -1):
         factors[j, i] = -H[j, i]/H[i, i]
         H[j] = -H[j, i]/H[i, i]*H[i] + H[j]
 
+print(measures)
 print(H)
 print(factors)
