@@ -23,6 +23,11 @@ class Line:
         else:
             self.B = 0.
 
+        if dataline[35:40].strip():
+            self.tap = float(dataline[35:40])
+        else:
+            self.tap = 1.
+
         # Power flowing from origin to destiny and destiny to origin
         self.S_od = 0.
         self.S_do = 0.
