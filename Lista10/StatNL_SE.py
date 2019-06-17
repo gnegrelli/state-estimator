@@ -138,6 +138,10 @@ class Bus:
         self.V = v
 
 
+def pf():
+
+
+
 # Flag for WLS (True) or LS (False) state estimator
 wls = True
 
@@ -206,9 +210,19 @@ while max(abs(delta_x)) > tolerance and counter < 50:
             # Calculate angle difference
             theta_km = bus.theta - otherbus.theta
 
+            try:
+                akm = lines[str(bus.ID) + "-" + str(otherbus.ID)].tap
+                print(akm)
+            except KeyError:
+                try:
+                    akm = 1/lines[str(otherbus.ID) + "-" + str(bus.ID)].tap
+                    print(akm)
+                except KeyError:
+                    akm = 1
+
             # Calculate active and reactive power reaching bus
-            p += bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(theta_km) + np.imag(Ybus[bus.ID - 1, otherbus.ID - 1]*np.sin(theta_km)))
-            q += bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(theta_km) - np.imag(Ybus[bus.ID - 1, otherbus.ID - 1]*np.cos(theta_km)))
+            p += akm*bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(theta_km) + np.imag(Ybus[bus.ID - 1, otherbus.ID - 1]*np.sin(theta_km)))
+            q += akm*bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(theta_km) - np.imag(Ybus[bus.ID - 1, otherbus.ID - 1]*np.cos(theta_km)))
 
         # Save calculated values of power
         bus.save_power(p, q)
@@ -223,13 +237,16 @@ while max(abs(delta_x)) > tolerance and counter < 50:
 
         Y = -Ybus[line.origin - 1, line.destiny - 1]
 
-        pkm = (Vk**2)*np.real(Y) - Vk*Vm*(np.real(Y)*np.cos(theta_km) + np.imag(Y)*np.sin(theta_km))
-        qkm = -(Vk**2)*(np.imag(Y) + line.B) - Vk*Vm*(np.real(Y)*np.sin(theta_km) - np.imag(Y)*np.cos(theta_km))
+        akm = line.tap
+        amk = 1/akm
+
+        pkm = ((akm*Vk)**2)*np.real(Y) - akm*Vk*Vm*(np.real(Y)*np.cos(theta_km) + np.imag(Y)*np.sin(theta_km))
+        qkm = -((akm*Vk)**2)*(np.imag(Y) + line.B) - akm*Vk*Vm*(np.real(Y)*np.sin(theta_km) - np.imag(Y)*np.cos(theta_km))
 
         line.save_flow(pkm, qkm, line.origin)
 
-        pmk = (Vm**2)*np.real(Y) - Vm*Vk*(np.real(Y)*np.cos(-theta_km) + np.imag(Y)*np.sin(-theta_km))
-        qmk = -(Vm**2)*(np.imag(Y) + line.B) - Vk*Vm*(np.real(Y)*np.sin(-theta_km) - np.imag(Y)*np.cos(-theta_km))
+        pmk = ((amk*Vm)**2)*np.real(Y) - amk*Vm*Vk*(np.real(Y)*np.cos(-theta_km) + np.imag(Y)*np.sin(-theta_km))
+        qmk = -((amk*Vm)**2)*(np.imag(Y) + line.B) - amk*Vk*Vm*(np.real(Y)*np.sin(-theta_km) - np.imag(Y)*np.cos(-theta_km))
 
         line.save_flow(pmk, qmk, line.destiny)
 
