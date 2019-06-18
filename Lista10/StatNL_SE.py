@@ -354,11 +354,14 @@ def jacob(buses, lines, Ybus):
                 # Partial derivatives of Qmk on theta
                 for bus in buses.values():
                     if bus.bustype != 'Vθ':
-                        if bus.ID == line.destiny:
-                            H_q = np.hstack((H_q, -ak * Vk * Vm * (gkm * np.cos(theta_mk) + bkm * np.sin(theta_mk))))
 
+                        # dQmk/dθm
+                        if bus.ID == line.destiny:
+                            H_q = np.hstack((H_q, -amk*Vk*Vm*(gkm*np.cos(theta_mk) + bkm*np.sin(theta_mk))))
+
+                        # dQmk/dθk
                         elif bus.ID == line.origin:
-                            H_q = np.hstack((H_q, ak * Vk * Vm * (gkm * np.cos(theta_mk) + bkm * np.sin(theta_mk))))
+                            H_q = np.hstack((H_q, amk*Vk*Vm*(gkm*np.cos(theta_mk) + bkm*np.sin(theta_mk))))
 
                         else:
                             H_q = np.hstack((H_q, 0))
