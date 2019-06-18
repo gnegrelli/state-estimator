@@ -331,12 +331,15 @@ def jacob(buses, lines, Ybus):
 
                 # Partial derivatives of Pmk on V
                 for bus in buses.values():
+
+                    # dPmk/dVm
                     if bus.ID == line.destiny:
                         H_p = np.hstack(
-                            (H_p, 2 * Vm * gkm - ak * Vk * (gkm * np.cos(theta_mk) + bkm * np.sin(theta_mk))))
+                            (H_p, 2*Vm*gkm - amk*Vk*(gkm*np.cos(theta_mk) + bkm*np.sin(theta_mk))))
 
+                    # dPmk/dVk
                     elif bus.ID == line.origin:
-                        H_p = np.hstack((H_p, -ak * Vm * (gkm * np.cos(theta_mk) + bkm * np.sin(theta_mk))))
+                        H_p = np.hstack((H_p, -amk*Vm*(gkm*np.cos(theta_mk) + bkm*np.sin(theta_mk))))
 
                     else:
                         H_p = np.hstack((H_p, 0))
