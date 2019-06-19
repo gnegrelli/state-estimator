@@ -172,18 +172,20 @@ def pf(buses, lines, Yb):
         gkm = np.real(ykm)
         bkm = np.imag(ykm)
 
+        bsh = line.B/2
+
         akm = line.tap
         amk = 1/akm
 
         pkm = ((akm*Vk)**2)*gkm - akm*Vk*Vm*(gkm*np.cos(theta_km) + bkm*np.sin(theta_km))
 
-        qkm = -((akm*Vk)**2)*(bkm + line.B) - akm*Vk*Vm*(gkm*np.sin(theta_km) - bkm*np.cos(theta_km))
+        qkm = -((akm*Vk)**2)*(bkm + bsh) - akm*Vk*Vm*(gkm*np.sin(theta_km) - bkm*np.cos(theta_km))
 
         line.save_flow(pkm, qkm, line.origin)
 
         pmk = ((amk*Vm)**2)*gkm - amk*Vm*Vk*(gkm*np.cos(-theta_km) + bkm*np.sin(-theta_km))
 
-        qmk = -((amk*Vm)**2)*(bkm + line.B) - amk*Vk*Vm*(gkm*np.sin(-theta_km) - bkm*np.cos(-theta_km))
+        qmk = -((amk*Vm)**2)*(bkm + bsh) - amk*Vk*Vm*(gkm*np.sin(-theta_km) - bkm*np.cos(-theta_km))
 
         line.save_flow(pmk, qmk, line.destiny)
 
@@ -530,8 +532,8 @@ def jacob(buses, lines, Yb):
 wls = True
 
 # Importing data
-datasets = open("3Barras.txt", "r").read().split("9999\n")
-# datasets = open("IEEE14bus.txt", "r").read().split("9999\n")
+# datasets = open("3Barras.txt", "r").read().split("9999\n")
+datasets = open("IEEE14bus.txt", "r").read().split("9999\n")
 
 # Create bus objects
 buses = dict()
@@ -573,7 +575,7 @@ Ybus += Ybus.T
 np.fill_diagonal(Ybus, Bsh + np.diag(Ybus)/2)
 
 # Method tolerance
-tolerance = 0.01
+tolerance = 0.001
 
 # Maximum absolute value of delta_x will be compared to tolerance. Delta_x is initiated with value higher than tolerance
 delta_x = np.array([tolerance + 1, tolerance + 1])
@@ -647,6 +649,7 @@ Omega = np.linalg.inv(W) - np.dot(H, np.linalg.solve(G, H.T))
 # Normalized residue calculation
 r_n = np.abs(r.T/np.sqrt(np.diag(Omega))).T
 
+"""
 print("\nResidue:")
 for item in r:
     print("%.5f" % item[0])
@@ -664,3 +667,4 @@ UI = np.sqrt(np.diag(K)/(1 - np.diag(K)))
 print("\nUI:")
 for ui in UI:
     print("%.5f" % ui)
+"""
