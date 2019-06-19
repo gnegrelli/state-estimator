@@ -19,7 +19,7 @@ class Line:
             self.X = 0.
 
         if dataline[29:35].strip():
-            self.B = float(dataline[29:35])
+            self.B = float(dataline[29:35])/100
         else:
             self.B = 0.
 
@@ -85,9 +85,9 @@ class Bus:
 
         # Read value of shunt on bus
         if databus[65:70].strip():
-            self.shunt = float(databus[65:70])
+            self.B = float(databus[65:70])/100
         else:
-            self.shunt = 0.
+            self.B = 0.
 
         p = []
         q = []
@@ -484,8 +484,8 @@ wls = True
 decoupled = not True
 
 # Importing data
-# data_measures = open("Measurements2.txt", "r").read().split("\n")
-datasets = open("3Barras.txt", "r").read().split("9999\n")
+# datasets = open("3Barras.txt", "r").read().split("9999\n")
+datasets = open("IEEE14bus.txt", "r").read().split("9999\n")
 
 # Create bus objects
 buses = dict()
@@ -514,14 +514,29 @@ Ybus = np.zeros((len(buses.keys()), len(buses.keys())), dtype=complex)
 
 # Shunt Elements Vector
 b_sh = np.zeros(len(buses), dtype=complex)
+Bsh = np.zeros(len(buses), dtype=complex)
 
 for line in lines.values():
-    y_series[line.origin - 1][line.destiny - 1] = -1 / (line.R + 1j * line.X)
-    b_sh[line.origin - 1] += 1j * line.B
-    b_sh[line.destiny - 1] += 1j * line.B
+    y_series[line.origin - 1][line.destiny - 1] = -1/(line.R + 1j*line.X)
+    b_sh[line.origin - 1] += 1j*line.B
+    b_sh[line.destiny - 1] += 1j*line.B
+
+    Ybus[line.origin - 1][line.destiny - 1] = -1/(line.tap*(line.R + 1j*line.X))
+    Ybus[line.origin - 1][line.origin - 1] += 1/((line.tap**2)*(line.R + 1j*line.X)) + 1j*line.B/2
+    Ybus[line.destiny - 1][line.destiny - 1] += 1/(line.R + 1j*line.X) + 1j*line.B/2
+
+for bus in buses.values():
+    Bsh[bus.ID - 1] = 1j*bus.B
 
 y_series += y_series.T
+Ybus += Ybus.T
+
+print(Bsh)
+
+np.fill_diagonal(Ybus, Bsh + np.diag(Ybus)/2)
 np.fill_diagonal(y_series, b_sh - np.sum(y_series, axis=1))
+
+diff = y_series - Ybus
 
 # Method tolerance
 tolerance = 0.01
