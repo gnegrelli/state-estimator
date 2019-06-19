@@ -139,7 +139,7 @@ class Bus:
 
 
 # Power flow calculation routine
-def pf(buses, lines, Ybus):
+def pf(buses, lines, Yb):
 
     # Calculation of power injected to each bus
     for bus in buses.values():
@@ -150,22 +150,22 @@ def pf(buses, lines, Ybus):
             # Calculate angle difference
             theta_km = bus.theta - otherbus.theta
 
-            try:
-                akm = lines[str(bus.ID) + "-" + str(otherbus.ID)].tap
-                print(akm)
-            except KeyError:
-                try:
-                    akm = 1 / lines[str(otherbus.ID) + "-" + str(bus.ID)].tap
-                    print(akm)
-                except KeyError:
-                    akm = 1
+            # try:
+            #     akm = lines[str(bus.ID) + "-" + str(otherbus.ID)].tap
+            #     print(akm)
+            # except KeyError:
+            #     try:
+            #         akm = 1/lines[str(otherbus.ID) + "-" + str(bus.ID)].tap
+            #         print(akm)
+            #     except KeyError:
+            #         akm = 1
 
             # Calculate active and reactive power reaching bus
-            p += akm*bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(theta_km) +
-                                       np.imag(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(theta_km))
+            p += bus.V*otherbus.V*(np.real(Yb[bus.ID - 1, otherbus.ID - 1])*np.cos(theta_km) +
+                                   np.imag(Yb[bus.ID - 1, otherbus.ID - 1])*np.sin(theta_km))
 
-            q += akm*bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(theta_km) -
-                                       np.imag(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(theta_km))
+            q += bus.V*otherbus.V*(np.real(Yb[bus.ID - 1, otherbus.ID - 1])*np.sin(theta_km) -
+                                   np.imag(Yb[bus.ID - 1, otherbus.ID - 1])*np.cos(theta_km))
 
         # Save calculated values of power
         bus.save_power(p, q)
@@ -178,22 +178,23 @@ def pf(buses, lines, Ybus):
         Vk = buses[str(line.origin)].V
         Vm = buses[str(line.destiny)].V
 
-        Y = -Ybus[line.origin - 1, line.destiny - 1]
+        ykm = 1/(line.R + 1j*line.X)
+        gkm = np.real(ykm)
+        bkm = np.imag(ykm)
+        # Y = -Ybus[line.origin - 1, line.destiny - 1]
 
         akm = line.tap
-        amk = 1 / akm
+        amk = 1/akm
 
-        pkm = ((akm*Vk)**2)*np.real(Y) - akm*Vk*Vm*(np.real(Y)*np.cos(theta_km) + np.imag(Y)*np.sin(theta_km))
+        pkm = ((akm*Vk)**2)*gkm - akm*Vk*Vm*(gkm*np.cos(theta_km) + bkm*np.sin(theta_km))
 
-        qkm = -((akm*Vk)**2)*(np.imag(Y) + line.B) - akm*Vk*Vm*(np.real(Y)*np.sin(theta_km) -
-                                                                np.imag(Y)*np.cos(theta_km))
+        qkm = -((akm*Vk)**2)*(bkm + line.B) - akm*Vk*Vm*(gkm*np.sin(theta_km) - bkm*np.cos(theta_km))
 
         line.save_flow(pkm, qkm, line.origin)
 
-        pmk = ((amk*Vm)**2)*np.real(Y) - amk*Vm*Vk*(np.real(Y)*np.cos(-theta_km) + np.imag(Y)*np.sin(-theta_km))
+        pmk = ((amk*Vm)**2)*gkm - amk*Vm*Vk*(gkm*np.cos(-theta_km) + bkm*np.sin(-theta_km))
 
-        qmk = -((amk*Vm)**2)*(np.imag(Y) + line.B) - amk*Vk*Vm*(np.real(Y)*np.sin(-theta_km) -
-                                                                np.imag(Y)*np.cos(-theta_km))
+        qmk = -((amk*Vm)**2)*(bkm + line.B) - amk*Vk*Vm*(gkm*np.sin(-theta_km) - bkm*np.cos(-theta_km))
 
         line.save_flow(pmk, qmk, line.destiny)
 
@@ -484,8 +485,8 @@ wls = True
 decoupled = not True
 
 # Importing data
-# datasets = open("3Barras.txt", "r").read().split("9999\n")
-datasets = open("IEEE14bus.txt", "r").read().split("9999\n")
+datasets = open("3Barras.txt", "r").read().split("9999\n")
+# datasets = open("IEEE14bus.txt", "r").read().split("9999\n")
 
 # Create bus objects
 buses = dict()
@@ -531,8 +532,6 @@ for bus in buses.values():
 y_series += y_series.T
 Ybus += Ybus.T
 
-print(Bsh)
-
 np.fill_diagonal(Ybus, Bsh + np.diag(Ybus)/2)
 np.fill_diagonal(y_series, b_sh - np.sum(y_series, axis=1))
 
@@ -554,7 +553,7 @@ while max(abs(delta_x)) > tolerance and counter < 50:
         print("V%d: %.6f < %.4f" % (bus.ID, bus.V, bus.theta))
 
     # Power Flow Calculation
-    pf(buses, lines, y_series)
+    pf(buses, lines, Ybus)
 
     # Submatrices of vector h (Calculated values of measurements)
     h_p = np.array([])
@@ -837,7 +836,7 @@ for bus in buses.values():
     print("V%d: %.6f < %.4f" % (bus.ID, bus.V, bus.theta))
 
 # Recalculating power flow
-pf(buses, lines, y_series)
+pf(buses, lines, Ybus)
 
 # Submatrices of vector h (Calculated values of measurements)
 h_q = np.array([])
