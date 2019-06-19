@@ -433,7 +433,7 @@ while max(abs(delta_x)) > tolerance and counter < 50:
                                 auxq += bus.V*buses[str(n)].V*(np.real(Ybus[bus.ID - 1, n - 1])*np.cos(bus.theta - buses[str(n)].theta) + np.imag(Ybus[bus.ID - 1, n - 1])*np.sin(bus.theta - buses[str(n)].theta))
                             H_q = np.hstack((H_q, auxq))
                         else:
-                            H_q = np.hstack((H_q, -bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(bus.theta - otherbus.theta) - np.imag(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(bus.theta - otherbus.theta))))
+                            H_q = np.hstack((H_q, -bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(bus.theta - otherbus.theta) + np.imag(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(bus.theta - otherbus.theta))))
 
                 # Partial derivatives of Qk on V
                 for otherbus in buses.values():
@@ -749,7 +749,7 @@ for bus in buses.values():
                             auxq += bus.V*buses[str(n)].V*(np.real(Ybus[bus.ID - 1, n - 1])*np.cos(bus.theta - buses[str(n)].theta) + np.imag(Ybus[bus.ID - 1, n - 1])*np.sin(bus.theta - buses[str(n)].theta))
                         H_q = np.hstack((H_q, auxq))
                     else:
-                        H_q = np.hstack((H_q, -bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(bus.theta - otherbus.theta) - np.imag(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(bus.theta - otherbus.theta))))
+                        H_q = np.hstack((H_q, -bus.V*otherbus.V*(np.real(Ybus[bus.ID - 1, otherbus.ID - 1])*np.cos(bus.theta - otherbus.theta) + np.imag(Ybus[bus.ID - 1, otherbus.ID - 1])*np.sin(bus.theta - otherbus.theta))))
 
             # Partial derivatives of Qk on V
             for otherbus in buses.values():
