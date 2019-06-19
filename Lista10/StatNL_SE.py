@@ -19,7 +19,7 @@ class Line:
             self.X = 0.
 
         if dataline[29:35].strip():
-            self.B = float(dataline[29:35])#/100
+            self.B = float(dataline[29:35])/100
         else:
             self.B = 0.
 
@@ -216,7 +216,7 @@ def jacob(buses, lines, Yb):
         gkm = np.real(ykm)
         bkm = np.imag(ykm)
 
-        bsh = line.B#/2
+        bsh = line.B/2
 
         theta_km = buses[str(line.origin)].theta - buses[str(line.destiny)].theta
         theta_mk = -theta_km
@@ -562,8 +562,8 @@ Bsh = np.zeros(len(buses), dtype=complex)
 
 for line in lines.values():
     Ybus[line.origin - 1][line.destiny - 1] = -1/(line.tap*(line.R + 1j*line.X))
-    Ybus[line.origin - 1][line.origin - 1] += 1/((line.tap**2)*(line.R + 1j*line.X)) + 1j*line.B#/2
-    Ybus[line.destiny - 1][line.destiny - 1] += 1/(line.R + 1j*line.X) + 1j*line.B#/2
+    Ybus[line.origin - 1][line.origin - 1] += 1/((line.tap**2)*(line.R + 1j*line.X)) + 1j*line.B/2
+    Ybus[line.destiny - 1][line.destiny - 1] += 1/(line.R + 1j*line.X) + 1j*line.B/2
 
 for bus in buses.values():
     Bsh[bus.ID - 1] = 1j*bus.B
