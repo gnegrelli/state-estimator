@@ -143,19 +143,24 @@ def pf(buses, lines, Yb):
 
     # Calculation of power injected to each bus
     for bus in buses.values():
+
         p, q = 0, 0
 
+        Vk = bus.V
+
         for otherbus in buses.values():
+
+            Vm = otherbus.V
+            Gkm = np.real(Yb[bus.ID - 1, otherbus.ID - 1])
+            Bkm = np.imag(Yb[bus.ID - 1, otherbus.ID - 1])
 
             # Calculate angle difference
             theta_km = bus.theta - otherbus.theta
 
             # Calculate active and reactive power reaching bus
-            p += bus.V*otherbus.V*(np.real(Yb[bus.ID - 1, otherbus.ID - 1])*np.cos(theta_km) +
-                                   np.imag(Yb[bus.ID - 1, otherbus.ID - 1])*np.sin(theta_km))
+            p += Vk*Vm*(Gkm*np.cos(theta_km) + Bkm*np.sin(theta_km))
 
-            q += bus.V*otherbus.V*(np.real(Yb[bus.ID - 1, otherbus.ID - 1])*np.sin(theta_km) -
-                                   np.imag(Yb[bus.ID - 1, otherbus.ID - 1])*np.cos(theta_km))
+            q += Vk*Vm*(Gkm*np.sin(theta_km) - Bkm*np.cos(theta_km))
 
         # Save calculated values of power
         bus.save_power(p, q)
@@ -183,9 +188,9 @@ def pf(buses, lines, Yb):
 
         line.save_flow(pkm, qkm, line.origin)
 
-        pmk = ((amk*Vm)**2)*gkm - amk*Vm*Vk*(gkm*np.cos(-theta_km) + bkm*np.sin(-theta_km))
+        pmk = (Vm**2)*gkm - amk*Vm*Vk*(gkm*np.cos(-theta_km) + bkm*np.sin(-theta_km))
 
-        qmk = -((amk*Vm)**2)*(bkm + bsh) - amk*Vk*Vm*(gkm*np.sin(-theta_km) - bkm*np.cos(-theta_km))
+        qmk = -(Vm**2)*(bkm + bsh) - amk*Vk*Vm*(gkm*np.sin(-theta_km) - bkm*np.cos(-theta_km))
 
         line.save_flow(pmk, qmk, line.destiny)
 
@@ -514,7 +519,6 @@ def jacob(buses, lines, Yb):
     # Calculated values of measurements
     h = np.hstack((h_p, h_q, h_v))
 
-
     # Measurements vector
     z = np.hstack((z_p, z_q, z_v))
 
@@ -587,7 +591,7 @@ while max(abs(delta_x)) > tolerance and counter < 50:
 
     print("\nIteration #%d" % counter)
     for bus in buses.values():
-        print("V%d: %.6f < %.4f" % (bus.ID, bus.V, bus.theta))
+        print("V%d: %.6f < %.4f°" % (bus.ID, bus.V, bus.theta*180/np.pi))
 
     # Power Flow Calculation
     pf(buses, lines, Ybus)
@@ -629,7 +633,7 @@ print("\n" + 30*"@" + "\n")
 print("Final States")
 
 for bus in buses.values():
-    print("V%d: %.6f < %.4f" % (bus.ID, bus.V, bus.theta))
+    print("V%d: %.6f < %.4f°" % (bus.ID, bus.V, bus.theta*180/np.pi))
 
 # Recalculating power flow
 pf(buses, lines, Ybus)
@@ -649,7 +653,6 @@ Omega = np.linalg.inv(W) - np.dot(H, np.linalg.solve(G, H.T))
 # Normalized residue calculation
 r_n = np.abs(r.T/np.sqrt(np.diag(Omega))).T
 
-"""
 print("\nResidue:")
 for item in r:
     print("%.5f" % item[0])
@@ -667,4 +670,3 @@ UI = np.sqrt(np.diag(K)/(1 - np.diag(K)))
 print("\nUI:")
 for ui in UI:
     print("%.5f" % ui)
-"""
