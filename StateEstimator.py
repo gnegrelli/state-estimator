@@ -536,7 +536,7 @@ def jacob(buses, lines, Yb):
 wls = True
 
 # Importing data
-datasets = open("Cases/IEEE14bus.txt", "r").read().split("9999\n")
+datasets = open("Cases/3Barras.txt", "r").read().split("9999\n")
 
 # Create bus objects
 buses = dict()
