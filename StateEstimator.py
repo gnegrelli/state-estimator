@@ -536,7 +536,7 @@ def jacob(buses, lines, Yb):
 wls = True
 
 # Importing data
-datasets = open("Cases/3Barras.txt", "r").read().split("9999\n")
+datasets = open("Cases/Exam.txt", "r").read().split("9999\n")
 
 # Create bus objects
 buses = dict()
@@ -652,9 +652,9 @@ Omega = np.linalg.inv(W) - np.dot(H, np.linalg.solve(G, H.T))
 # Normalized residue calculation
 r_n = np.abs(r.T/np.sqrt(np.diag(Omega))).T
 
-print("\nResidue:")
-for item in r:
-    print("%.5f" % item[0])
+# print("\nResidue:")
+# for item in r:
+#     print("%.5f" % item[0])
 
 print("\nNormalized Residue:")
 for item in r_n:
@@ -666,6 +666,6 @@ for item in r_n:
 K = np.dot(H, np.linalg.solve(G, np.dot(H.T, W)))
 UI = np.sqrt(np.diag(K)/(1 - np.diag(K)))
 
-print("\nUI:")
-for ui in UI:
-    print("%.5f" % ui)
+# print("\nUI:")
+# for ui in UI:
+#     print("%.5f" % ui)
